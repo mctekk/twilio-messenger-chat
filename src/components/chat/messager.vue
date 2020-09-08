@@ -34,22 +34,23 @@
 
     <!-- Message Box toolbar -->
     <div class="message-toolbar">
-        <button class="btn-action">
-            <i class="fa fa-clip"></i>
+        <button class="btn btn-action bg-white text-dark">
+            <i class="fa fa-paperclip"></i>
             Suggest Vehicle
         </button>
 
         <textarea
             class="message-toolbar__message"
             v-model="formData.message"
+            v-validate="'required'"
             spellcheck="true"
             ref="Message"
             placeholder="Type..."
             @keydown="listenTyping"
         ></textarea>
 
-      <button class="btn-action" @click="sendMessage()">
-         <i class="fa fa-send"></i> Send Message
+      <button class="btn btn-action" @click="sendMessage(formData.message)">
+         <i class="fa fa-send mr-2"></i> Send Message
       </button>
     </div>
     <!-- End of message box -->
@@ -161,10 +162,12 @@ export default {
     },
 
     sendMessage(message) {
-      this.channel.sendMessage(message);
-      setTimeout(() => {
-        this.formData.message = "";
-      });
+        if (message.trim()) {
+            this.channel.sendMessage(message);
+            setTimeout(() => {
+              this.formData.message = "";
+            });
+        }
     },
 
     listenTyping(e) {
@@ -298,10 +301,15 @@ export default {
 
   &__message {
     height: 100%;
-    padding: 3px 5px;
+    padding: 5px 10px;
     text-align: left;
     white-space: pre-wrap;
     width: 100%;
+    border: 0;
+
+    &:focus {
+        outline: none;
+    }
   }
 }
 
@@ -326,6 +334,8 @@ export default {
     text-align: center;
     padding: 5px 0;
     margin: 5px;
-    width: max-content !important;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 220px !important;
 }
 </style>

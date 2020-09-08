@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-h-full">
+  <div class="h-full">
     <chat-Login
       v-if="!isLoggedIn"
       :http-options="httpOptions"
@@ -10,9 +10,9 @@
       @logged="createClient"
     ></chat-Login>
 
-    <div class="home-container flex tw-h-full" v-else>
+    <div class="home-container h-full" v-else>
       <div
-        class="chat-side__container h-screen border-r-2 border-gray-700"
+        class="chat-side__container h-full border-r-2 border-gray-700"
         :class="[displayFull ? 'w-1/3' : 'w-full']"
         v-if="!activeChannel || displayFull"
       >
@@ -29,7 +29,7 @@
 
       <div
         v-if="activeChannel || displayFull"
-        class="tw-h-full"
+        class="h-full"
         :class="[displayFull ? 'w-2/3' : 'w-full']"
       >
         <chat-messager
@@ -185,3 +185,18 @@ export default {
   }
 };
 </script>
+
+
+<style lang="scss" scoped>
+.h-full {
+ height: 100%;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.home-container {
+    display: flex;
+}
+</style>
