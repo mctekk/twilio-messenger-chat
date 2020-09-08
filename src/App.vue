@@ -1,28 +1,27 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <twilio-chat 
+      endpoint="https://apidev.kanvas.dev/v1/chat"
+      :display-full="displayFull"
+      :contacts="null"
+      receiver="tes2t@baka.io"
+    >
+    </twilio-chat>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import TwilioChat from "./components/chat";
 
 export default {
   name: "App",
   components: {
-    HelloWorld
+    TwilioChat
+  },
+  data() {
+    return {
+      displayFull: true
+    };
   }
 };
 </script>
-
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
