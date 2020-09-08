@@ -22,7 +22,6 @@
           :active-channel="activeChannel"
           :show-header="showHeader"
           @join-channel="joinChannel"
-          @create-or-join="createOrJoin"
         >
         </chat-side>
       </div>
@@ -36,6 +35,7 @@
           :active-channel="activeChannel"
           :user-context="userContext"
           :show-header="showHeader"
+          :show-suggest-button="showSuggestButton"
           v-if="activeChannel"
           @left="leaveChannel"
           @opened="$emit('chat-opened', $event)"
@@ -61,8 +61,8 @@ export default {
   },
   props: {
     tokenField: {
-        type: String,
-        default: 'channel_owner_token'
+      type: String,
+      default: "channel_owner_token"
     },
     displayFull: {
       type: Boolean,
@@ -77,17 +77,21 @@ export default {
       required: true
     },
     showHeader: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      default: true
+    },
+    showSuggestButton: {
+      type: Boolean,
+      default: true
     },
     httpOptions: {
-        type: Object,
-        default() {
-            return {}
-        }
+      type: Object,
+      default() {
+        return {};
+      }
     },
     httpMethod: {
-        type: Function
+      type: Function
     }
   },
   data() {
@@ -105,32 +109,32 @@ export default {
       return this.userContext.identity;
     }
   },
-  beforeDestroy() {
-
-  },
+  beforeDestroy() {},
   methods: {
     async createClient(data) {
-        const client = await Twilio.Client.create(data[this.tokenField], { logLevel: "info" });
-        this.userContext = {
-            ...data,
-            identity: client.user.identity
-        }
-        this.client = client;
+      const client = await Twilio.Client.create(data[this.tokenField], {
+        logLevel: "info"
+      });
+      this.userContext = {
+        ...data,
+        identity: client.user.identity
+      };
+      this.client = client;
 
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
       this.updateChannels();
       this.loadChannelEvents(client);
     },
 
-    async loadChannel(data) {
-        if (!this.activeChannel) {
-            const channel = this.channels.find(channel => {
-                return channel.sid == this.userContext.channel_sid;
-            });
-            if (channel) {
-                this.joinChannel(channel);
-            }
+    async loadChannel() {
+      if (!this.activeChannel) {
+        const channel = this.channels.find(channel => {
+          return channel.sid == this.userContext.channel_sid;
+        });
+        if (channel) {
+          this.joinChannel(channel);
         }
+      }
     },
 
     joinChannel(channel) {
@@ -186,17 +190,16 @@ export default {
 };
 </script>
 
-
 <style lang="scss" scoped>
 .h-full {
- height: 100%;
+  height: 100%;
 }
 
 .w-full {
-    width: 100%;
+  width: 100%;
 }
 
 .home-container {
-    display: flex;
+  display: flex;
 }
 </style>

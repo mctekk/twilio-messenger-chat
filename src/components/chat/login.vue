@@ -37,20 +37,20 @@ export default {
       required: true
     },
     httpOptions: {
-        type: Object,
-        default() {
-            return {}
-        }
+      type: Object,
+      default() {
+        return {};
+      }
     },
     receiver: {
       type: String,
       required: true
     },
     httpMethod: {
-        type: Function
+      type: Function
     },
     showUi: {
-        type: false
+      type: Boolean
     }
   },
   data() {
@@ -72,16 +72,18 @@ export default {
     },
 
     getAccessToken(identity) {
-        if (this.httpMethod) {
-            this.httpMethod(`${this.endpoint}/${identity}`)
-            .then(({ data }) => {
-                this.$emit("logged", data);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-            return
-        }
+      if (this.httpMethod) {
+        this.httpMethod(`${this.endpoint}/${identity}`).then(({ data }) => {
+          this.$emit("logged", data);
+        });
+        return;
+      } else {
+        axios
+          .get(`${this.endpoint}/${identity}`, this.httpOptions)
+          .then(({ data }) => {
+            this.$emit("logged", data);
+          });
+      }
     }
   }
 };

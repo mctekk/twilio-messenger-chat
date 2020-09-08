@@ -1,32 +1,30 @@
 <template>
-    <div class="chat-header">
-      <div class="chat-header__left">
-        <div
-          v-if="showBackButton"
-          class="chat-header__back-button"
-          @click.prevent="$emit('back')"
-        >
-          <i :class="leftIcon"></i>
-        </div>
-
-        <div class="chat-header__title">
-          <div>
-            <span>
-              {{ title }} Hello
-            </span>
-            <small>{{ description }}</small>
-          </div>
-        </div>
+  <div class="chat-header">
+    <div class="chat-header__left">
+      <div
+        v-if="showBackButton"
+        class="chat-header__back-button"
+        @click.prevent="$emit('back')"
+      >
+        <i :class="leftIcon"></i>
       </div>
 
-      <div
-        v-if="showSettings"
-        class="chat-header__back-button"
-        @click="$emit('settings')"
-      >
-        <i :class="rightIcon"></i>
+      <div class="chat-header__title">
+        <div>
+          <span> {{ title }} Hello </span>
+          <small>{{ description }}</small>
+        </div>
       </div>
     </div>
+
+    <div
+      v-if="showSettings"
+      class="chat-header__back-button"
+      @click="$emit('settings')"
+    >
+      <i :class="rightIcon"></i>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -67,30 +65,30 @@ export default {
   width: 100%;
 
   &__left {
-      grid-column-start: 1;
-      grid-column-end: 8;
-      display: flex;
-      overflow: hidden;
+    grid-column-start: 1;
+    grid-column-end: 8;
+    display: flex;
+    overflow: hidden;
   }
 
   &__back-button {
-      padding: 1.25rem;
-      width: 3rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      &:hover {
-          background: rgba($color: #000000, $alpha: .3)
-      }
+    padding: 1.25rem;
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+      background: rgba($color: #000000, $alpha: 0.3);
+    }
   }
 
   &__title {
-      display: flex;
-      padding-left: 1rem;
-      align-items: center;
-      overflow: hidden;
-      font-size: 1.25rem;
+    display: flex;
+    padding-left: 1rem;
+    align-items: center;
+    overflow: hidden;
+    font-size: 1.25rem;
   }
 }
 </style>

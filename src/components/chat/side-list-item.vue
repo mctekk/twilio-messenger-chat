@@ -33,7 +33,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     channel: {
@@ -104,7 +103,7 @@ export default {
     isRead() {
       if (this.isSender(this.lastMessage)) {
         return true;
-      } else if (this.sender){
+      } else if (this.sender) {
         return (
           this.receiver &&
           this.lastMessage.index <= this.sender.lastConsumedMessageIndex

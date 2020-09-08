@@ -1,7 +1,7 @@
 <template>
   <div class="chat-container">
     <chat-header
-       v-if="showHeader"
+      v-if="showHeader"
       :show-back-button="true"
       :show-settings="false"
       :title="channelName"
@@ -17,15 +17,14 @@
         ref="MessageContainer"
         :class="{ 'quiet-loading': isLoading }"
       >
-
         <!-- Message Item -->
         <messager-item
-            v-for="message in messages"
-            :key="message.index"
-            :is-sender="isSender(message) "
-            :show-sender="channel.type == 'public'"
-            :is-read="isRead(message)"
-            :message="message"
+          v-for="message in messages"
+          :key="message.index"
+          :is-sender="isSender(message)"
+          :show-sender="channel.type == 'public'"
+          :is-read="isRead(message)"
+          :message="message"
         >
         </messager-item>
         <!-- End of message Item -->
@@ -34,33 +33,31 @@
 
     <!-- Message Box toolbar -->
     <div class="message-toolbar">
-        <button class="btn btn-action bg-white text-dark">
-            <i class="fa fa-paperclip"></i>
-            Suggest Vehicle
-        </button>
+      <button class="btn-action bg-white text-dark" v-if="showSuggestButton">
+        <i class="fa fa-paperclip"></i>
+        Suggest Vehicle
+      </button>
 
-        <textarea
-            class="message-toolbar__message"
-            v-model="formData.message"
-            v-validate="'required'"
-            spellcheck="true"
-            ref="Message"
-            placeholder="Type..."
-            @keydown="listenTyping"
-        ></textarea>
+      <textarea
+        class="message-toolbar__message"
+        v-model="formData.message"
+        spellcheck="true"
+        ref="Message"
+        placeholder="Type..."
+        @keydown="listenTyping"
+      ></textarea>
 
-      <button class="btn btn-action" @click="sendMessage(formData.message)">
-         <i class="fa fa-send mr-2"></i> Send Message
+      <button class="btn-action" @click="sendMessage(formData.message)">
+        <i class="fa fa-send mr-2"></i> Send Message
       </button>
     </div>
     <!-- End of message box -->
-
   </div>
 </template>
 
 <script>
 import ChatHeader from "./header";
-import MessagerItem from "./messager-item"
+import MessagerItem from "./messager-item";
 
 export default {
   components: {
@@ -74,6 +71,10 @@ export default {
     },
     showHeader: {
       type: Boolean
+    },
+    showSuggestButton: {
+      type: Boolean,
+      default: true
     },
     userContext: {
       type: Object,
@@ -131,7 +132,7 @@ export default {
       this.scrollToBottom();
     });
   },
-  beforeUnmount() {
+  beforeDestroy() {
     this.removeActiveChannelListeners();
   },
   methods: {
@@ -162,12 +163,12 @@ export default {
     },
 
     sendMessage(message) {
-        if (message.trim()) {
-            this.channel.sendMessage(message);
-            setTimeout(() => {
-              this.formData.message = "";
-            });
-        }
+      if (message.trim()) {
+        this.channel.sendMessage(message);
+        setTimeout(() => {
+          this.formData.message = "";
+        });
+      }
     },
 
     listenTyping(e) {
@@ -192,8 +193,6 @@ export default {
     removeActiveChannelListeners() {
       if (this.channel) {
         this.channel.removeListener("messageAdded", this.addMessage);
-        this.channel.removeListener("messageRemoved", this.removeMessage);
-        this.channel.removeListener("messageUpdated", this.updateMessage);
         this.channel.removeListener("memberUpdated", this.updateMembers);
       }
     },
@@ -204,11 +203,9 @@ export default {
         this.scrollToBottom();
         const lastIndex = this.messages.length - 1;
         if (lastIndex >= 0) {
-            this.setLastConsumedIndex(this.messages[lastIndex].index);
+          this.setLastConsumedIndex(this.messages[lastIndex].index);
         }
         this.channel.on("messageAdded", this.addMessage);
-        this.channel.on("messageUpdated", this.updateMessage);
-        this.channel.on("messageRemoved", this.removeMessage);
         this.channel.on("memberUpdated", this.updateMembers);
         setTimeout(() => {
           this.isLoading = false;
@@ -230,18 +227,10 @@ export default {
       });
     },
 
-    removeMessage() {
-      console.log("removed");
-    },
-
     addMessage(message) {
       this.messages.push(message);
       this.setLastConsumedIndex(message.index);
       this.scrollToBottom("smooth");
-    },
-
-    updateMessage() {
-      console.log("removed");
     },
 
     setLastConsumedIndex(index) {
@@ -308,7 +297,7 @@ export default {
     border: 0;
 
     &:focus {
-        outline: none;
+      outline: none;
     }
   }
 }
@@ -328,14 +317,16 @@ export default {
 }
 
 .btn-action {
-    background: dodgerblue;
-    color: white;
-    height: 34px;
-    text-align: center;
-    padding: 5px 0;
-    margin: 5px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    width: 220px !important;
+  background: dodgerblue;
+  color: white;
+  height: 34px;
+  text-align: center;
+  padding: 5px 0;
+  margin: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  width: 220px !important;
+  border: none;
+
 }
 </style>
