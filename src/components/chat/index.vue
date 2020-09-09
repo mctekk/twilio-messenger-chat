@@ -1,14 +1,16 @@
 <template>
   <div class="h-full">
-    <chat-Login
-      v-if="!isLoggedIn"
-      :http-options="httpOptions"
-      :endpoint="endpoint"
-      :receiver="receiver"
-      :http-method="httpMethod"
-      :show-ui="false"
-      @logged="createClient"
-    ></chat-Login>
+    <div class="h-full" v-if="!isLoggedIn">
+      <chat-Login
+        :http-options="httpOptions"
+        :endpoint="endpoint"
+        :receiver="receiver"
+        :http-method="httpMethod"
+        :show-ui="false"
+        @logged="createClient"
+      ></chat-Login>
+      <chat-loading> </chat-loading>
+    </div>
 
     <div class="home-container h-full" v-else>
       <div
@@ -17,6 +19,7 @@
         v-if="!activeChannel || displayFull"
       >
         <chat-side
+          v-if="showChannelList"
           :user-context="userContext"
           :channels="channels"
           :active-channel="activeChannel"
@@ -24,8 +27,8 @@
           @join-channel="joinChannel"
         >
         </chat-side>
+        <chat-loading v-else> </chat-loading>
       </div>
-
       <div
         v-if="activeChannel || displayFull"
         class="h-full"
@@ -51,13 +54,15 @@ import * as Twilio from "twilio-chat";
 import ChatLogin from "./login";
 import ChatMessager from "./messager";
 import ChatSide from "./side";
+import ChatLoading from "./loading";
 import "../../assets/scss/style.scss";
 
 export default {
   components: {
     ChatMessager,
     ChatSide,
-    ChatLogin
+    ChatLogin,
+    ChatLoading
   },
   props: {
     tokenField: {
@@ -79,6 +84,10 @@ export default {
     showHeader: {
       type: Boolean,
       default: true
+    },
+    showChannelList: {
+      type: Boolean,
+      default: false
     },
     showSuggestButton: {
       type: Boolean,
