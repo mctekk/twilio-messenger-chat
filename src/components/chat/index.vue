@@ -35,12 +35,14 @@
         :class="[displayFull ? 'w-2/3' : 'w-full']"
       >
         <chat-messager
+          ref="messenger"
           :active-channel="activeChannel"
           :user-context="userContext"
           :show-header="showHeader"
           :show-suggest-button="showSuggestButton"
           v-if="activeChannel"
           @left="leaveChannel"
+          @action-called="$emit('action-called', $event)"
           @opened="$emit('chat-opened', $event)"
         >
         </chat-messager>
@@ -194,6 +196,10 @@ export default {
 
     setActiveChannel(channel) {
       this.activeChannel = channel;
+    },
+
+    sendMessage(message) {
+       this.$refs.messenger.sendMessage(message)
     }
   }
 };

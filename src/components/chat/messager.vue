@@ -13,7 +13,7 @@
 
     <div class="message-list">
       <div
-        class="message-container"
+        class="message-container chat-scroller"
         ref="MessageContainer"
         :class="{ 'quiet-loading': isLoading }"
       >
@@ -33,7 +33,9 @@
 
     <!-- Message Box toolbar -->
     <div class="message-toolbar">
-      <button class="btn-action bg-white text-dark" v-if="showSuggestButton">
+      <button class="btn-action bg-white text-dark"
+        @click.prevent="$emit('action-called')"
+        v-if="showSuggestButton">
         <i class="fa fa-paperclip"></i>
         Suggest Vehicle
       </button>
@@ -287,10 +289,12 @@ export default {
   flex: none;
   order: 3;
   min-height: 62px;
+  align-items: center;
 
   &__message {
     height: 100%;
     padding: 5px 10px;
+    padding-top: 10px;
     text-align: left;
     white-space: pre-wrap;
     width: 100%;
@@ -326,7 +330,24 @@ export default {
   font-size: 0.75rem;
   cursor: pointer;
   width: 220px !important;
-  border: none;
+  border: 2px solid #ccc;
 
+}
+
+.chat-scroller {
+    &::-webkit-scrollbar-thumb {
+        background-color: transparentize($color: #000000, $amount: 0.9);
+        border-radius: 4px;
+
+        &:hover {
+            background-color: transparentize($color: #000000, $amount: 0.9);
+        }
+    }
+
+    &::-webkit-scrollbar {
+        background-color: transparent;
+        width: 8px;
+        height: 10px;
+    }
 }
 </style>

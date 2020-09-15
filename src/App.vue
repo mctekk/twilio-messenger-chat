@@ -15,6 +15,7 @@
 <script>
 import TwilioChat from "./components/chat";
 const token = "";
+
 export default {
   name: "App",
   components: {
