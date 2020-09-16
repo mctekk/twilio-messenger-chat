@@ -1,7 +1,7 @@
 <template>
   <div id="app" style="height: 98vh">
     <twilio-chat
-      v-if="leadId"
+      v-if="leadId && token"
       :endpoint="endpoint"
       :show-header="false"
       :show-suggest-button="false"
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import TwilioChat from "./components/chat";
 const token = "";
 
@@ -25,8 +26,9 @@ export default {
     return {
       displayFull: true,
       leadId: null,
+      key: null,
       endpoint: process.env.VUE_APP_CHAT_ENDPOINT,
-      token: token || process.env.VUE_APP_CHAT_TOKEN
+      token: null
     };
   },
   mounted() {
@@ -37,6 +39,22 @@ export default {
         .map(entry => entry.split("="))
     );
     this.leadId = params["lead-id"];
+    this.key = params["key"] || params["token"];
+    this.getToken();
+  },
+  methods: {
+    getToken() {
+      axios({
+        method: "GET",
+        url: `https://apiutilitiesdev.kanvas.dev/v1/users/${this.key}/token`
+      })
+        .then(({ data }) => {
+          this.token = data;
+        })
+        .catch(() => {
+          this.token = token || process.env.VUE_APP_CHAT_TOKEN;
+        });
+    }
   }
 };
 </script>

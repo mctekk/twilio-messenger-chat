@@ -32,10 +32,12 @@
     </div>
 
     <!-- Message Box toolbar -->
-    <div class="message-toolbar">
-      <button class="btn-action bg-white text-dark"
+    <div class="message-toolbar" v-if="!isSameOwner">
+      <button
+        class="btn-action bg-white text-dark"
         @click.prevent="$emit('action-called')"
-        v-if="showSuggestButton">
+        v-if="showSuggestButton"
+      >
         <i class="fa fa-paperclip"></i>
         Suggest Vehicle
       </button>
@@ -67,6 +69,10 @@ export default {
     MessagerItem
   },
   props: {
+    tokenField: {
+      type: String,
+      default: "channel_owner_token"
+    },
     activeChannel: {
       type: Object,
       required: true
@@ -123,6 +129,11 @@ export default {
         this.members.find(
           member => member.identity != this.userContext.identity
         )
+      );
+    },
+    isSameOwner() {
+      return (
+        this.tokenField == "channel_owner_token" && this.members.length < 2
       );
     }
   },
@@ -331,23 +342,22 @@ export default {
   cursor: pointer;
   width: 220px !important;
   border: 2px solid #ccc;
-
 }
 
 .chat-scroller {
-    &::-webkit-scrollbar-thumb {
-        background-color: transparentize($color: #000000, $amount: 0.9);
-        border-radius: 4px;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparentize($color: #000000, $amount: 0.9);
+    border-radius: 4px;
 
-        &:hover {
-            background-color: transparentize($color: #000000, $amount: 0.9);
-        }
+    &:hover {
+      background-color: transparentize($color: #000000, $amount: 0.9);
     }
+  }
 
-    &::-webkit-scrollbar {
-        background-color: transparent;
-        width: 8px;
-        height: 10px;
-    }
+  &::-webkit-scrollbar {
+    background-color: transparent;
+    width: 8px;
+    height: 10px;
+  }
 }
 </style>

@@ -36,6 +36,7 @@
       >
         <chat-messager
           ref="messenger"
+          :token-field="tokenField"
           :active-channel="activeChannel"
           :user-context="userContext"
           :show-header="showHeader"
@@ -199,7 +200,7 @@ export default {
     },
 
     sendMessage(message) {
-       this.$refs.messenger.sendMessage(message)
+      this.$refs.messenger.sendMessage(message);
     }
   }
 };
