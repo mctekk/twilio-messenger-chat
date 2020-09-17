@@ -47,7 +47,7 @@ export default {
     getToken() {
       axios({
         method: "GET",
-        url: `${this.endpoint}sessions/${this.key}/token`
+        url: `https://apiutilitiesdev.kanvas.dev/v1/sessions/${this.key}/token`
       })
         .then(({ data }) => {
           this.token = data;
