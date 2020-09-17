@@ -2,7 +2,7 @@
   <div id="app" style="height: 98vh">
     <twilio-chat
       v-if="leadId && token"
-      :endpoint="endpoint"
+      :endpoint="`${endpoint}chat`"
       :show-header="false"
       :show-suggest-button="false"
       :http-options="{ headers: { Authorization: token } }"
@@ -15,7 +15,8 @@
 <script>
 import axios from "axios";
 import TwilioChat from "./components/chat";
-const token = "";
+let endpoint = process.env.VUE_APP_CHAT_ENDPOINT
+endpoint = endpoint.replace('/chat', '')
 
 export default {
   name: "App",
@@ -27,7 +28,7 @@ export default {
       displayFull: true,
       leadId: null,
       key: null,
-      endpoint: process.env.VUE_APP_CHAT_ENDPOINT,
+      endpoint,
       token: null
     };
   },
@@ -46,7 +47,7 @@ export default {
     getToken() {
       axios({
         method: "GET",
-        url: `https://apiutilitiesdev.kanvas.dev/v1/users/${this.key}/token`
+        url: `${this.endpoint}sessions/${this.key}/token`
       })
         .then(({ data }) => {
           this.token = data;
