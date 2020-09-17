@@ -15,8 +15,8 @@
 <script>
 import axios from "axios";
 import TwilioChat from "./components/chat";
-let endpoint = process.env.VUE_APP_CHAT_ENDPOINT
-endpoint = endpoint.replace('/chat', '')
+let endpoint = process.env.VUE_APP_CHAT_ENDPOINT;
+endpoint = endpoint.replace("chat", "");
 
 export default {
   name: "App",
@@ -53,7 +53,7 @@ export default {
           this.token = data;
         })
         .catch(() => {
-          this.token = token || process.env.VUE_APP_CHAT_TOKEN;
+          this.token = process.env.VUE_APP_CHAT_TOKEN;
         });
     }
   }
