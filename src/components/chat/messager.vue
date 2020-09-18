@@ -55,6 +55,9 @@
         <i class="fa fa-send mr-2"></i> Send Message
       </button>
     </div>
+    <div v-else>
+        is Same User
+    </div>
     <!-- End of message box -->
   </div>
 </template>

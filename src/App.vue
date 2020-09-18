@@ -16,6 +16,7 @@
 import axios from "axios";
 import TwilioChat from "./components/chat";
 let endpoint = process.env.VUE_APP_CHAT_ENDPOINT;
+// const utilitiesEndpoint = "https://apiutilitiesdev.kanvas.dev/v1";
 endpoint = endpoint.replace("chat", "");
 
 export default {
@@ -47,10 +48,10 @@ export default {
     getToken() {
       axios({
         method: "GET",
-        url: `https://apiutilitiesdev.kanvas.dev/v1/sessions/${this.key}/token`
+        url: `${this.endpoint}sessions/${this.key}/token`
       })
         .then(({ data }) => {
-          this.token = data;
+          this.token = data.token;
         })
         .catch(() => {
           this.token = process.env.VUE_APP_CHAT_TOKEN;
