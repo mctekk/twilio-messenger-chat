@@ -4,7 +4,7 @@
       {{ message.author }}:</span
     >
     <div>
-      <div v-html="message.state.body" class="message-body"></div>
+      <div v-html="renderedMessage" class="message-body"></div>
       <small class="meta-data">
         {{ stringDate }}
         <div v-if="isSender" class="inline">
@@ -40,6 +40,15 @@ export default {
   computed: {
     stringDate() {
       return format(this.message.state.timestamp, "MMM dd yyyy hh:mm a");
+    },
+
+    renderedMessage() {
+      const urlRest = /((https:|http:|www\.)\S*)/g;
+      const text = this.message.state.body.replaceAll(
+        urlRest,
+        '<a href="$1" target="_blank">$1</a>'
+      );
+      return text;
     }
   }
 };

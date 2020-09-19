@@ -56,7 +56,7 @@
       </button>
     </div>
     <div v-else>
-        is Same User
+      is Same User
     </div>
     <!-- End of message box -->
   </div>
@@ -225,7 +225,7 @@ export default {
         this.channel.on("memberUpdated", this.updateMembers);
         setTimeout(() => {
           this.isLoading = false;
-        }, 200);
+        }, 300);
       });
 
       this.channel.on("typingStarted", member => {
