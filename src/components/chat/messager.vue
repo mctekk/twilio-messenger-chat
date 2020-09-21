@@ -32,7 +32,7 @@
     </div>
 
     <!-- Message Box toolbar -->
-    <div class="message-toolbar" v-if="!isSameOwner">
+    <div class="message-toolbar">
       <button
         class="btn-action bg-white text-dark"
         @click.prevent="$emit('action-called')"
@@ -54,9 +54,6 @@
       <button class="btn-action" @click="sendMessage(formData.message)">
         <i class="fa fa-send mr-2"></i> Send Message
       </button>
-    </div>
-    <div v-else>
-      is Same User
     </div>
     <!-- End of message box -->
   </div>
