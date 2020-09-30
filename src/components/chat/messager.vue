@@ -1,7 +1,8 @@
 <template>
   <div class="chat-container">
+    <chat-loading v-if="!messages"> </chat-loading>
     <chat-header
-      v-if="showHeader"
+      v-if="showHeader && messages"
       :show-back-button="true"
       :show-settings="false"
       :title="channelName"
@@ -13,6 +14,7 @@
 
     <div class="message-list">
       <div
+        v-if="messages"
         class="message-container chat-scroller"
         ref="MessageContainer"
         :class="{ 'quiet-loading': isLoading }"
@@ -32,7 +34,7 @@
     </div>
 
     <!-- Message Box toolbar -->
-    <div class="message-toolbar">
+    <div class="message-toolbar" v-if="messages">
       <button
         class="btn-action bg-white text-dark"
         @click.prevent="$emit('action-called')"
@@ -62,10 +64,12 @@
 <script>
 import ChatHeader from "./header";
 import MessagerItem from "./messager-item";
+import ChatLoading from "./loading";
 
 export default {
   components: {
     ChatHeader,
+    ChatLoading,
     MessagerItem
   },
   props: {
@@ -94,7 +98,7 @@ export default {
       description: "",
       channel: null,
       isLoading: false,
-      messages: [],
+      messages: null,
       typing: [],
       members: [],
       formData: {
@@ -175,9 +179,9 @@ export default {
       this.$emit("left", this.channel);
     },
 
-    sendMessage(message) {
+    sendMessage(message, attributes = {}) {
       if (message.trim()) {
-        this.channel.sendMessage(message);
+        this.channel.sendMessage(message, attributes);
         setTimeout(() => {
           this.formData.message = "";
         });
@@ -195,12 +199,13 @@ export default {
     },
 
     scrollToBottom(behavior) {
-      const el = this.$refs.MessageContainer;
-      if (el) {
-        setTimeout(() => {
-          el.scrollTo({ top: el.scrollHeight, behavior });
-        });
-      }
+        this.$nextTick(() => {
+        const el = this.$refs.MessageContainer;
+            if (el) {
+                console.log('rendered')
+                el.scrollTo({ top: el.scrollHeight, behavior });
+            }
+        })
     },
 
     removeActiveChannelListeners() {
@@ -213,6 +218,7 @@ export default {
     getMessages() {
       this.channel.getMessages(30).then(page => {
         this.messages = page.items || [];
+        console.log('set')
         this.scrollToBottom();
         const lastIndex = this.messages.length - 1;
         if (lastIndex >= 0) {
@@ -262,8 +268,6 @@ export default {
   order: 2;
 
   &__item {
-    background: rgb(250, 250, 250);
-    color: #333;
     margin: 15px;
     padding: 0.75rem 1.25rem;
     width: fit-content;
@@ -273,8 +277,13 @@ export default {
       margin-left: auto;
     }
 
+    a {
+        color: #eee;
+        text-decoration: underline;
+    }
+
     .me {
-      font-weight: bolder;
+      font-weight: bold;
     }
   }
 

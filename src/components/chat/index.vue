@@ -199,8 +199,8 @@ export default {
       this.activeChannel = channel;
     },
 
-    sendMessage(message) {
-      this.$refs.messenger.sendMessage(message);
+    sendMessage(message, attributes) {
+      this.$refs.messenger.sendMessage(message, attributes);
     }
   }
 };
