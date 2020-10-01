@@ -3,15 +3,15 @@
     <span v-if="showSender" class="sender-name" :class="{ me: isSender }">
       {{ message.author }}:</span
     >
-    <div>
-      <div v-html="renderedMessage" :class="[isVehicle ? 'message-vehicle':'message-body' ]"></div>
-      <small class="meta-data">
-        {{ stringDate }}
-        <div v-if="isSender" class="inline">
-          <i class="fa fa-check"></i>
-          <i class="fa fa-check" v-if="isRead"> </i>
-        </div>
-      </small>
+    <div class="message-list__body" :class="{'padding-0': isVehicle}">
+      <div v-html="renderedMessage" :class="[isVehicle ? 'message-list__vehicle':'message-list__text' ]"></div>
+        <small class="meta-data">
+            {{ stringDate }}
+            <div v-if="isSender" class="inline">
+                <i class="fa fa-check"></i>
+                <i class="fa fa-check" v-if="isRead"> </i>
+            </div>
+        </small>
     </div>
   </div>
 </template>
@@ -77,27 +77,49 @@ export default {
 
 <style lang="scss">
 .message-list__item {
-    background: darken(dodgerblue, 40%) !important;
-    color: white;
-  .sender-name {
-    display: block;
-    margin-bottom: 0.25rem;
-  }
+    .message-list__body {
+        position: relative;
+        background: darken(dodgerblue, 40%) !important;
+        color: white;
+    }
 
-  &.message-sender {
-      background: rgb(60, 154, 248) !important;
-  }
+    .sender-name {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
 
-  .meta-data {
-    text-align: right;
-    width: 100%;
-    display: block;
-    margin-top: 1rem;
-    opacity: 0.8;
-  }
+    &.message-sender {
+        .message-list__body {
+            background: rgb(60, 154, 248) !important;
+            color: white;
+        }
+
+    }
+
+    .meta-data {
+        text-align: right;
+        width: 100%;
+        display: flex;
+        margin-top: 0.25rem;
+        opacity: 0.8;
+        justify-content: flex-end;
+
+        .inline {
+            margin-left: 10px;
+            display: inline-block;
+        }
+    }
+
+    .message-list__vehicle {
+
+        &+.meta-data {
+            position: absolute;
+            bottom: 12px;
+            right: 20px;
+        }
+    }
 
     .vehicle-link {
-        padding-top: 15px;
         display: block;
         text-decoration: none;
         .dealer-vehicle {
@@ -110,7 +132,7 @@ export default {
         .empty-image {
             width: 40%;
             background: #ccc;
-            height: 120px;
+            height: 150px;
             position: relative;
 
             img {
@@ -122,6 +144,7 @@ export default {
         }
 
         .message-data {
+            padding-top: 15px;
             padding-left: 15px;
             font-weight: bold;
         }

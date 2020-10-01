@@ -21,11 +21,12 @@
       >
         <!-- Message Item -->
         <messager-item
-          v-for="message in messages"
+          v-for="(message, index) in messages"
           :key="message.index"
           :is-sender="isSender(message)"
           :show-sender="channel.type == 'public'"
           :is-read="isRead(message)"
+          :previous-message="index > 0 ? messages[index -1 ] : {}"
           :message="message"
         >
         </messager-item>
@@ -263,18 +264,36 @@ export default {
 
 <style lang="scss">
 .message-list {
-  position: relative;
-  flex: 1 1 0;
-  order: 2;
+    position: relative;
+    flex: 1 1 0;
+    order: 2;
 
-  &__item {
-    margin: 15px;
-    padding: 0.75rem 1.25rem;
-    width: fit-content;
-    border-radius: 0.25rem;
+    &__body {
+        padding: 0.75rem 1.25rem;
+        width: fit-content;
+        border-radius: 1rem;
+        border-top-left-radius: 0;
+        width: 100%;
+    }
+
+    &__body.padding-0 {
+        padding: 0 0 0 0;
+    }
+
+    &__item {
+        margin: 15px;
+        width: fit-content;
+        padding: 0 1rem;
+
     &.message-sender {
-      right: 0;
-      margin-left: auto;
+        right: 0;
+        margin-left: auto;
+
+        .message-list__body {
+            border-radius: 1rem;
+            border-top-right-radius: 0;
+        }
+
     }
 
     a {
@@ -283,20 +302,24 @@ export default {
     }
 
     .me {
-      font-weight: bold;
+        font-weight: bold;
     }
-  }
+    }
 
-  .message-container {
-    position: absolute;
-    top: 0;
-    z-index: 100;
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: scroll;
-  }
+    &__text {
+        white-space: pre-wrap;
+    }
+
+    .message-container {
+        position: absolute;
+        top: 0;
+        z-index: 100;
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
 }
 
 .message-toolbar {
@@ -324,10 +347,6 @@ export default {
       outline: none;
     }
   }
-}
-
-.message-body {
-  white-space: pre-wrap;
 }
 
 .chat-container {
