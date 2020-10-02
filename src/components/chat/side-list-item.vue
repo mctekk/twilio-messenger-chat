@@ -5,17 +5,24 @@
     @click.prevent="$emit('click')"
   >
     <div class="chat-item__header">
-      {{ channelName }}
-      <small class="text-gray">
-        {{ channel.description || "Interesado en una camioneta de 4 puertas" }}
-      </small>
+      <div class="left-side">
+        <profile-image></profile-image>
+        <span class="chat-item__title">
+          {{ channelName }}
+        </span>
+      </div>
+
+      <div class="title-indicators">
+        <span> 20 </span>
+        <i class="fa fa-calendar"></i>
+      </div>
     </div>
 
     <div class="chat-item__body">
       <div class="message">
-        {{ lastMessage.body }}
+        {{ lastMessage.author }}: {{ lastMessage.body }}
       </div>
-      <div v-if="unreadMessages" class="new-message-indicator">
+      <div class="new-message-indicator">
         {{ unreadMessages }}
       </div>
     </div>
@@ -24,16 +31,21 @@
       {{ descriptionText }}
     </small>
 
-    <div class="meta-info">
+    <!-- <div class="meta-info">
       <small class="mr-2">Representante: Jose Perez</small>
       <small class="mr-2">Status: Demo Drive</small>
       <small>Dias abierto: 2</small>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
+import ProfileImage from "./profile-image";
+
 export default {
+  components: {
+    ProfileImage
+  },
   props: {
     channel: {
       type: Object,
@@ -154,13 +166,14 @@ export default {
 <style lang="scss">
 .chat-item {
   cursor: pointer;
+  background: white;
   text-align: left;
-  padding: 1.25rem 1rem;
-  border-bottom: 2px solid #4a5568;
+  padding-top: 15px;
+  overflow: hidden;
+  font-weight: bolder;
 
   &.read {
-    background: #edf2f7;
-    color: #a0aec0;
+    font-weight: normal;
   }
 
   &:hover {
@@ -168,32 +181,45 @@ export default {
   }
 
   &__header {
+    display: flex;
     font-weight: bold;
     color: #4a5568;
+    justify-content: space-between;
+    padding-right: 20px;
     margin-bottom: 0.5rem;
   }
 
   &__body {
+    margin-left: 65px;
+    margin-right: 15px;
+    padding-left: 15px;
+    overflow: hidden;
     display: flex;
     justify-content: space-between;
     font-size: 1.25rem;
+    border-bottom: 1px solid #4a556854;
+    padding-bottom: 15px;
   }
 
   .message {
-    width: 100%;
+    width: 92%;
+    white-space: nowrap;
+    break-inside: auto;
+    height: 30px;
+    overflow: hidden;
   }
 
   .new-message-indicator {
-    width: 1rem;
-    height: 1.5rem;
-    padding: 1rem;
-    background: #f56565;
+    width: 27px;
+    height: 0.7rem;
+    padding: 15px 0;
+    font-size: 15px;
+    background: darken(dodgerblue, 10%) !important;
     color: white;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 0.75rem;
     border-radius: 50%;
   }
 
@@ -207,6 +233,10 @@ export default {
     font-size: 0.95rem;
     font-weight: bold;
     margin-top: 5px;
+  }
+
+  .title-indicators {
+    font-size: 20px;
   }
 }
 

@@ -1,25 +1,20 @@
 <template>
   <div class="chat_side">
     <chat-header
-      v-if="mobileDisplay"
-      :show-back-button="true"
-      :show-settings="!addNewChat"
+      v-if="mobileDisplay || showHeader"
+      :show-back-button="false"
+      :show-settings="true"
       :left-icon="!addNewChat ? 'fa fa-menu' : 'fa fa-chevron-left'"
-      right-icon="fa fa-plus"
+      :right-icon="!isExpanded ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"
       :title="headerTitle"
-      @back="addNewChat = !addNewChat"
-      @settings="addNewChat = !addNewChat"
+      @settings="isExpanded = !isExpanded"
     >
     </chat-header>
-    <template v-if="!addNewChat">
+    <template v-if="!addNewChat && isExpanded">
       <div class="chat-side__search border-b-2 border-gray-700 h-16 py-4">
-        <input type="text" placeholder="Search ..." />
-        <button class="btn bg-blue-600 text-white hover:bg-blue-400 text-xs">
-          Search
-        </button>
-        <select name="" id="">
-          <option value="unread">unread</option>
-        </select>
+        <i class="fa fa-search"></i>
+        <input class="seach-input" type="text" placeholder="Search ..." />
+        <i class="fa fa-sliders-h"></i>
       </div>
 
       <chat-side-item
@@ -32,7 +27,7 @@
       >
       </chat-side-item>
     </template>
-    <template v-else>
+    <template v-else-if="isExpanded">
       <div
         v-for="contact in contacts"
         :key="contact.email"
@@ -60,6 +55,10 @@ export default {
       type: Boolean,
       default: false
     },
+    showHeader: {
+      type: Boolean,
+      default: false
+    },
     channels: {
       type: Array,
       required: true
@@ -77,13 +76,41 @@ export default {
   },
   data() {
     return {
-      addNewChat: false
+      addNewChat: false,
+      isExpanded: true
     };
   },
   computed: {
     headerTitle() {
-      return this.addNewChat ? "Contacts" : "Dealer One";
+      return this.addNewChat ? "Contacts" : "Messaging";
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.chat-side {
+  &__search {
+    height: 42px;
+    border: 2px solid #aaa;
+    border-radius: 4px;
+    margin: 15px 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    color: #777;
+    input {
+      height: 100%;
+      border: none;
+      width: 100%;
+      padding: 0 15px;
+      font-size: 18px;
+      font-weight: bold;
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}
+</style>
