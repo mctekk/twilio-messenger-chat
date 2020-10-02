@@ -9,9 +9,13 @@
         <i :class="leftIcon"></i>
       </div>
 
+      <profile-image
+        url="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+      ></profile-image>
+
       <div class="chat-header__title">
         <div>
-          <span> {{ title }} Hello </span>
+          <span> {{ title }} </span>
           <small>{{ description }}</small>
         </div>
       </div>
@@ -28,7 +32,12 @@
 </template>
 
 <script>
+import ProfileImage from "./profile-image";
+
 export default {
+  components: {
+    ProfileImage
+  },
   props: {
     showBackButton: {
       type: Boolean
@@ -58,7 +67,7 @@ export default {
 .chat-header {
   height: 59px;
   overflow: hidden;
-  background: dodgerblue;
+  background: darken(dodgerblue, 30%) !important;;
   display: grid;
   grid-template-columns: repeat(7, 1fr) 3rem;
   color: white;
@@ -69,6 +78,7 @@ export default {
     grid-column-end: 8;
     display: flex;
     overflow: hidden;
+    align-items: center;
   }
 
   &__back-button {

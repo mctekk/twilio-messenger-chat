@@ -54,6 +54,7 @@
 
 <script>
 import * as Twilio from "twilio-chat";
+import axios from "axios";
 import ChatLogin from "./login";
 import ChatMessager from "./messager";
 import ChatSide from "./side";
@@ -139,10 +140,11 @@ export default {
     },
 
     async loadChannel() {
-      if (!this.activeChannel) {
+      if (!this.activeChannel && !this.showChannelList) {
         const channel = this.channels.find(channel => {
           return channel.sid == this.userContext.channel_sid;
         });
+
         if (channel) {
           this.joinChannel(channel);
         }
@@ -158,7 +160,12 @@ export default {
     },
 
     onTokenAboutToExpire() {
-      console.log("about to expire");
+      axios(
+        `${this.endpoint}/${this.userContext.identity}`,
+        this.httpOptions
+      ).then(({ data }) => {
+        this.client.updateToken(data[this.tokenField]);
+      });
     },
 
     async updateChannels(channel) {

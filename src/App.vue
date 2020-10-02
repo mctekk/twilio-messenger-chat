@@ -4,6 +4,7 @@
       v-if="leadId && token"
       :endpoint="`${endpoint}chat`"
       :show-header="false"
+      :show-channel-list="false"
       :show-suggest-button="false"
       :http-options="{ headers: { Authorization: token } }"
       :display-full="false"
@@ -60,3 +61,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+* {
+  font-family: sans-serif;
+}
+</style>
