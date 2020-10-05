@@ -6,7 +6,9 @@
   >
     <div class="chat-item__header">
       <div class="left-side">
-        <profile-image></profile-image>
+        <profile-image
+            url="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+        ></profile-image>
         <span class="chat-item__title">
           {{ channelName }}
         </span>
@@ -19,17 +21,17 @@
     </div>
 
     <div class="chat-item__body">
-      <div class="message">
-        {{ lastMessage.author }}: {{ lastMessage.body }}
+      <div class="message" :class="{'message-loading': isLoading }">
+        {{ lastMessageBody }}
       </div>
-      <div class="new-message-indicator">
+      <div v-if="unreadMessages" class="new-message-indicator">
         {{ unreadMessages }}
       </div>
     </div>
 
-    <small class="typing-indicator">
+    <!-- <small class="typing-indicator">
       {{ descriptionText }}
-    </small>
+    </small> -->
 
     <!-- <div class="meta-info">
       <small class="mr-2">Representante: Jose Perez</small>
@@ -64,10 +66,13 @@ export default {
       lastMessage: {},
       typing: [],
       members: [],
-      newMessages: 0
+      newMessages: 0,
+      isLoading: false
     };
   },
   created() {
+    this.isLoading = true
+    this.getLastMessage(true);
     this.listenChannel();
   },
   computed: {
@@ -75,9 +80,10 @@ export default {
       return this.typing.length ? "Typing..." : "";
     },
     channelName() {
-      return this.userContext.identity == this.channel.attributes.receiver
-        ? this.channel.createdBy
-        : this.channel.friendlyName;
+      return this.channel.friendlyName || this.channel.uniqueName;
+    },
+    lastMessageBody() {
+       return this.lastMessage ? `${this.lastMessage.author || ''}: ${this.lastMessage.body || ''} ` : ""
     },
     receiver() {
       return (
@@ -97,7 +103,7 @@ export default {
     },
     unreadMessages() {
       if (this.lastMessage && this.sender && !this.isActive) {
-        return this.lastMessage.index - this.sender.lastConsumedMessageIndex;
+        return (this.lastMessage.index - this.sender.lastConsumedMessageIndex) || 0;
       }
       return 0;
     },
@@ -151,12 +157,15 @@ export default {
       });
     },
 
-    getLastMessage() {
-      this.channel.getMessages(1).then(messages => {
+    getLastMessage(initial) {
+        this.channel.getMessages(1).then(messages => {
         this.lastMessage = messages.items.length ? messages.items[0] : {};
-        setTimeout(() => {
+        if (initial) {
+            this.isLoading = false
+        }
+        this.$nextTick(() => {
           this.updateMembers();
-        }, 10);
+        });
       });
     }
   }
@@ -186,7 +195,15 @@ export default {
     color: #4a5568;
     justify-content: space-between;
     padding-right: 20px;
-    margin-bottom: 0.5rem;
+
+    .left-side {
+        display: flex;
+    }
+  }
+
+  &__title {
+      margin-left: 25px;
+      font-size: 18px;
   }
 
   &__body {
@@ -207,11 +224,32 @@ export default {
     break-inside: auto;
     height: 30px;
     overflow: hidden;
+
+    &.message-loading {
+        background: #ddd;
+        color: #ddd;
+        border-radius: 6px;
+        position: relative;
+        // animation: skeleton-loading 1.5s infinite;
+
+        &::after {
+            display: block;
+            top: 0;
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, #eee, transparent);
+            animation: skeleton-wave 1.8s infinite;
+        }
+    }
   }
 
   .new-message-indicator {
-    width: 27px;
-    height: 0.7rem;
+    width: 24px;
+    margin-left: 2px;
+    height: 15px;
     padding: 15px 0;
     font-size: 15px;
     background: darken(dodgerblue, 10%) !important;
@@ -242,5 +280,25 @@ export default {
 
 .text-gray {
   color: #718096;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        opacity: .5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .5;
+    }
+}
+
+@keyframes skeleton-wave{
+    100% {
+        transform: translateX(100%);
+    }
 }
 </style>

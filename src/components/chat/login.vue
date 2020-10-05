@@ -44,7 +44,6 @@ export default {
     },
     receiver: {
       type: String,
-      required: true
     },
     httpMethod: {
       type: Function

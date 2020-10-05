@@ -371,21 +371,4 @@ export default {
   width: 220px !important;
   border: 2px solid #ccc;
 }
-
-.chat-scroller {
-  &::-webkit-scrollbar-thumb {
-    background-color: transparentize($color: #000000, $amount: 0.9);
-    border-radius: 4px;
-
-    &:hover {
-      background-color: transparentize($color: #000000, $amount: 0.9);
-    }
-  }
-
-  &::-webkit-scrollbar {
-    background-color: transparent;
-    width: 8px;
-    height: 10px;
-  }
-}
 </style>

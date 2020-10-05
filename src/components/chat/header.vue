@@ -66,6 +66,7 @@ export default {
 <style lang="scss" scoped>
 .chat-header {
   height: 59px;
+  min-height: 59px;
   overflow: hidden;
   background: darken(dodgerblue, 30%) !important;;
   display: grid;

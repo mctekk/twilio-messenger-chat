@@ -37,13 +37,13 @@ export default {
 
   &::after {
     content: "";
-    background: greenyellow;
-    width: 10px;
-    height: 10px;
+    background: green;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: -4px;
+    bottom: -4px;
     border: 2px solid white;
   }
 }

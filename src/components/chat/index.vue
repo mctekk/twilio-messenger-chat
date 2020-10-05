@@ -9,7 +9,7 @@
         :show-ui="false"
         @logged="createClient"
       ></chat-Login>
-      <chat-loading> </chat-loading>
+      <chat-loading v-if="!showChannelList"> </chat-loading>
     </div>
 
     <div class="home-container h-full" v-else>
@@ -20,11 +20,13 @@
       >
         <chat-side
           v-if="showChannelList"
+          :is-expanded="isExpanded"
           :user-context="userContext"
           :channels="channels"
           :active-channel="activeChannel"
           :show-header="showHeader"
-          @join-channel="joinChannel"
+          @update:is-expanded="$emit('update:is-expanded', $event)"
+          @click="handleChannelClick"
         >
         </chat-side>
         <chat-loading v-else> </chat-loading>
@@ -83,7 +85,6 @@ export default {
     },
     receiver: {
       type: String,
-      required: true
     },
     showHeader: {
       type: Boolean,
@@ -105,6 +106,14 @@ export default {
     },
     httpMethod: {
       type: Function
+    },
+    isExpanded: {
+      type: Boolean,
+      default: false
+    },
+    externalChannelHandle: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -206,6 +215,14 @@ export default {
       this.activeChannel = channel;
     },
 
+    handleChannelClick(channel) {
+        if (this.externalChannelHandle) {
+            this.$emit('channel-clicked', channel);
+        } else {
+            this.joinChannel(channel)
+        }
+    },
+
     sendMessage(message, attributes) {
       this.$refs.messenger.sendMessage(message, attributes);
     }
@@ -213,7 +230,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .h-full {
   height: 100%;
 }
@@ -224,5 +241,22 @@ export default {
 
 .home-container {
   display: flex;
+}
+
+.chat-scroller {
+  &::-webkit-scrollbar-thumb {
+    background-color: transparentize($color: #000000, $amount: 0.9);
+    border-radius: 4px;
+
+    &:hover {
+      background-color: transparentize($color: #000000, $amount: 0.9);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    background-color: transparent;
+    width: 8px;
+    height: 10px;
+  }
 }
 </style>
