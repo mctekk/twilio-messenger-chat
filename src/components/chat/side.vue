@@ -1,5 +1,5 @@
 <template>
-  <div class="chat_side">
+  <div class="chat-side">
     <chat-header
       v-if="mobileDisplay || showHeader"
       :show-back-button="false"
@@ -7,35 +7,40 @@
       :left-icon="!addNewChat ? 'fa fa-menu' : 'fa fa-chevron-left'"
       :right-icon="!isExpanded ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"
       :title="headerTitle"
-      @settings="isExpanded = !isExpanded"
+      @settings="$emit('update:is-expanded', !isExpanded)"
     >
     </chat-header>
     <template v-if="!addNewChat && isExpanded">
-      <div class="chat-side__search border-b-2 border-gray-700 h-16 py-4">
-        <i class="fa fa-search"></i>
-        <input class="seach-input" type="text" placeholder="Search ..." />
-        <i class="fa fa-sliders-h"></i>
-      </div>
+        <div class="chat-side__body">
+            <div class="chat-side__search border-b-2 border-gray-700 h-16 py-4">
+                <i class="fa fa-search"></i>
+                <input class="seach-input" type="text" placeholder="Search ..."  v-model="search"/>
+                <i class="fa fa-sliders-h"></i>
+            </div>
 
-      <chat-side-item
-        v-for="channel in channels"
-        :key="channel.id"
-        :channel="channel"
-        :user-context="userContext"
-        :active-channel="activeChannel"
-        @click="$emit('join-channel', channel)"
-      >
-      </chat-side-item>
+            <div class="chat-side__list chat-scroller">
+                <chat-side-item
+                    v-for="channel in filteredChannels"
+                    :key="channel.sid"
+                    :channel="channel"
+                    :user-context="userContext"
+                    :active-channel="activeChannel"
+                    @click="$emit('click', channel)"
+                >
+                </chat-side-item>
+            </div>
+
+        </div>
     </template>
     <template v-else-if="isExpanded">
-      <div
+    <div
         v-for="contact in contacts"
         :key="contact.email"
         @click="$emit('create-or-join', contact)"
         class="border-b-2 border-gray-400 mx-5 pl-10 px-2 py-5 text-left cursor-pointer hover:bg-gray-400"
-      >
+    >
         {{ contact.email }}
-      </div>
+    </div>
     </template>
   </div>
 </template>
@@ -72,17 +77,31 @@ export default {
       default() {
         return {};
       }
+    },
+    isExpanded: {
+        type: Boolean,
+        required: true
     }
   },
   data() {
     return {
-      addNewChat: false,
-      isExpanded: true
+        search: "",
+        addNewChat: false
     };
   },
   computed: {
     headerTitle() {
       return this.addNewChat ? "Contacts" : "Messaging";
+    },
+
+    filteredChannels() {
+        return this.channels.filter(channel => {
+           return channel.lastMessage && channel.uniqueName.includes(this.search);
+        }).sort( (a, b) => {
+            const dateCreatedA = a.lastMessage ? a.lastMessage.dateCreated.toISOString() : '';
+            const dateCreatedB = b.lastMessage ? b.lastMessage.dateCreated.toISOString() : '';
+            return dateCreatedA > dateCreatedB ? -1 : 1;
+        })
     }
   }
 };
@@ -90,6 +109,10 @@ export default {
 
 <style lang="scss" scoped>
 .chat-side {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+
   &__search {
     height: 42px;
     border: 2px solid #aaa;
@@ -99,8 +122,9 @@ export default {
     align-items: center;
     padding: 0 15px;
     color: #777;
+    position: relative;
     input {
-      height: 100%;
+      height: 42px;
       border: none;
       width: 100%;
       padding: 0 15px;
@@ -111,6 +135,17 @@ export default {
         outline: none;
       }
     }
+  }
+
+  &__body {
+    height: 91%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__list {
+      height: 100%;
+      overflow: auto;
   }
 }
 </style>
