@@ -28,16 +28,6 @@
         {{ unreadMessages }}
       </div>
     </div>
-
-    <!-- <small class="typing-indicator">
-      {{ descriptionText }}
-    </small> -->
-
-    <!-- <div class="meta-info">
-      <small class="mr-2">Representante: Jose Perez</small>
-      <small class="mr-2">Status: Demo Drive</small>
-      <small>Dias abierto: 2</small>
-    </div> -->
   </div>
 </template>
 
@@ -53,6 +43,12 @@ export default {
       type: Object,
       required: true
     },
+    channelData: {
+        type: Object,
+        default() {
+            return {}
+        }
+    },
     activeChannel: {
       type: Object
     },
@@ -66,14 +62,8 @@ export default {
       lastMessage: {},
       typing: [],
       members: [],
-      newMessages: 0,
-      isLoading: false
+      newMessages: 0
     };
-  },
-  created() {
-    this.isLoading = true
-    this.getLastMessage(true);
-    this.listenChannel();
   },
   computed: {
     descriptionText() {
@@ -83,7 +73,10 @@ export default {
       return this.channel.friendlyName || this.channel.uniqueName;
     },
     lastMessageBody() {
-       return this.lastMessage ? `${this.lastMessage.author || ''}: ${this.lastMessage.body || ''} ` : ""
+       const limit = 23
+       const lastMessage = this.channelData.lastMessage
+       const message = lastMessage ? `${lastMessage.author || ''}: ${lastMessage.body || ''} ` : ""
+       return message.length > limit ? `${message.slice(0, limit)} ...` : message
     },
     receiver() {
       return (
@@ -101,23 +94,19 @@ export default {
         )
       );
     },
+
     unreadMessages() {
-      if (this.lastMessage && this.sender && !this.isActive) {
-        return (this.lastMessage.index - this.sender.lastConsumedMessageIndex) || 0;
-      }
-      return 0;
+      return this.channelData.unreadMessages
+    },
+
+    isLoading() {
+        return this.channelData.lastMessage ? false : true;
     },
     isActive() {
       return this.activeChannel && this.channel.sid == this.activeChannel.sid;
     }
   },
   methods: {
-    updateMembers() {
-      this.channel.getMembers().then(members => {
-        this.members = members;
-      });
-    },
-
     isRead() {
       if (this.isSender(this.lastMessage)) {
         return true;
@@ -132,42 +121,6 @@ export default {
     isSender(message) {
       return this.userContext.identity == message.author;
     },
-
-    listenChannel() {
-      this.getLastMessage();
-      this.updateMembers();
-      this.$root.$on("chat-opened", sid => {
-        if (this.channel.sid == sid) {
-          this.updateMembers();
-        }
-      });
-      this.channel.on("messageAdded", this.getLastMessage);
-      this.channel.on("typingStarted", member => {
-        member.getUser().then(user => {
-          this.typing.push(user.friendlyName || member.identity);
-        });
-      });
-
-      this.channel.on("typingEnded", member => {
-        member.getUser().then(user => {
-          this.typing = this.typing.filter(
-            userName => !userName.includes(user.friendlyName || member.identity)
-          );
-        });
-      });
-    },
-
-    getLastMessage(initial) {
-        this.channel.getMessages(1).then(messages => {
-        this.lastMessage = messages.items.length ? messages.items[0] : {};
-        if (initial) {
-            this.isLoading = false
-        }
-        this.$nextTick(() => {
-          this.updateMembers();
-        });
-      });
-    }
   }
 };
 </script>
@@ -203,7 +156,7 @@ export default {
 
   &__title {
       margin-left: 25px;
-      font-size: 18px;
+      font-size: 16px;
   }
 
   &__body {
@@ -213,7 +166,7 @@ export default {
     overflow: hidden;
     display: flex;
     justify-content: space-between;
-    font-size: 1.25rem;
+    font-size: 1rem;
     border-bottom: 1px solid #4a556854;
     padding-bottom: 15px;
   }
@@ -223,6 +176,7 @@ export default {
     white-space: nowrap;
     break-inside: auto;
     height: 30px;
+    font-size: 15px;
     overflow: hidden;
 
     &.message-loading {
@@ -248,10 +202,9 @@ export default {
 
   .new-message-indicator {
     width: 24px;
-    margin-left: 2px;
-    height: 15px;
-    padding: 15px 0;
-    font-size: 15px;
+    margin-left: 4px;
+    height: 24px;
+    font-size: 14px;
     background: darken(dodgerblue, 10%) !important;
     color: white;
     font-weight: bold;
@@ -274,7 +227,7 @@ export default {
   }
 
   .title-indicators {
-    font-size: 20px;
+    font-size: 16px;
   }
 }
 
