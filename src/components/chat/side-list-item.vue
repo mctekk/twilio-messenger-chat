@@ -1,7 +1,7 @@
 <template>
   <div
     class="chat-item"
-    :class="{ read: isRead() }"
+    :class="{ read: !unreadMessages }"
     @click.prevent="$emit('click')"
   >
     <div class="chat-item__header">
@@ -80,16 +80,16 @@ export default {
     },
     receiver() {
       return (
-        this.members &&
-        this.members.find(
+        this.channelData.members &&
+        this.channelData.members.find(
           member => member.identity != this.userContext.identity
         )
       );
     },
     sender() {
       return (
-        this.members &&
-        this.members.find(
+        this.channelData.members &&
+        this.channelData.members.find(
           member => member.identity == this.userContext.identity
         )
       );
@@ -113,7 +113,7 @@ export default {
       } else if (this.sender) {
         return (
           this.receiver &&
-          this.lastMessage.index <= this.sender.lastConsumedMessageIndex
+          this.channelData.lastMessage.index <= this.sender.lastConsumedMessageIndex
         );
       }
     },

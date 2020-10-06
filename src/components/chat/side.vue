@@ -12,7 +12,7 @@
     </chat-header>
     <template v-if="!addNewChat && isExpanded">
       <div class="chat-side__body">
-        <div class="chat-side__search border-b-2 border-gray-700 h-16 py-4">
+        <div class="chat-side__search">
           <i class="fa fa-search"></i>
           <input
             class="seach-input"
@@ -242,8 +242,8 @@ export default {
   flex-direction: column;
 
   &__search {
-    height: 42px;
-    border: 2px solid #aaa;
+    height: 38px;
+    border: 1px solid #ccc;
     border-radius: 4px;
     margin: 15px 10px;
     display: flex;
@@ -252,12 +252,11 @@ export default {
     color: #777;
     position: relative;
     input {
-      height: 42px;
+      height: 36px;
       border: none;
       width: 100%;
       padding: 0 15px;
       font-size: 16px;
-      font-weight: bold;
 
       &:focus {
         outline: none;
