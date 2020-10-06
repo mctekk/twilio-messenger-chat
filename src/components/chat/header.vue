@@ -15,7 +15,7 @@
 
       <div class="chat-header__title">
         <div>
-          <span> {{ title }} </span>
+          <div v-html="title"></div>
           <small>{{ description }}</small>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default {
     padding-left: 1rem;
     align-items: center;
     overflow: hidden;
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 }
 </style>

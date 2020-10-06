@@ -21,8 +21,8 @@ export default {
 
 <style lang="scss">
 .profile-image__container {
-  height: 40px;
-  width: 40px;
+  height: 35px;
+  width: 35px;
   background: whitesmoke;
   border-radius: 50%;
   margin-left: 15px;
@@ -38,8 +38,8 @@ export default {
   &::after {
     content: "";
     background: green;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     position: absolute;
     right: -4px;
