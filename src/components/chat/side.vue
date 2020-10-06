@@ -98,25 +98,28 @@ export default {
   watch: {
     channels: {
       handler(channels, oldChannels) {
-          const hasChangedLength = (channels && channels.length && !oldChannels) || (channels && oldChannels && channels.length != oldChannels.length)
-          if (hasChangedLength) {
-              channels.forEach((channel) => {
-                if (channel) {
-                  this.unlistenChannel(channel);
-                  this.$set(this.channelData, channel.sid, {});
-                  this.listenChannel(channel);
-                }
-              });
-          }
+        const hasChangedLength =
+          (channels && channels.length && !oldChannels) ||
+          (channels && oldChannels && channels.length != oldChannels.length);
+        if (hasChangedLength) {
+          channels.forEach((channel) => {
+            if (channel) {
+              this.unlistenChannel(channel);
+              this.$set(this.channelData, channel.sid, {});
+              this.listenChannel(channel);
+            }
+          });
+        }
       },
       immediate: true,
     },
   },
   computed: {
     headerTitle() {
-      return this.addNewChat
-        ? "Contacts"
-        : `Messaging <span class="head-indicator">${this.unreadMessages} </span>`;
+      const unreadMessageHTML = this.unreadMessages
+        ? `<span class="head-indicator">${this.unreadMessages} </span>`
+        : "";
+      const title = `Messaging ${unreadMessageHTML}`;
     },
 
     unreadMessages() {
@@ -151,49 +154,48 @@ export default {
   },
   created() {
     this.$root.$on("chat-opened", (sid) => {
-        const channel = this.channels.find(channel => channel.sid == sid);
-        if (channel) {
-
-            this.updateMembers(channel);
-        }
+      const channel = this.channels.find((channel) => channel.sid == sid);
+      if (channel) {
+        this.updateMembers(channel);
+      }
     });
   },
   methods: {
     updateMembers(channel) {
-        channel.getMembers().then(members => {
-            this.$set(
-                this.channelData[channel.sid],
-                "members",
-                members
-            );
+      channel.getMembers().then((members) => {
+        this.$set(this.channelData[channel.sid], "members", members);
 
-            this.updateUnread(channel);
+        this.updateUnread(channel);
       });
     },
     listenChannel(channel) {
       this.getLastMessage(channel, true);
       this.updateMembers(channel);
-      channel.on("messageAdded", (message) => this.getLastMessage(channel, false, message));
+      channel.on("messageAdded", (message) =>
+        this.getLastMessage(channel, false, message)
+      );
       channel.on("memberUpdated", (event) => this.updateMembers(channel));
     },
 
     unlistenChannel(channel) {
-        channel.removeListener("messageAdded", this.getLastMessage);
-        channel.removeListener("memberUpdated", (event) => this.updateMembers(channel));
+      channel.removeListener("messageAdded", this.getLastMessage);
+      channel.removeListener("memberUpdated", (event) =>
+        this.updateMembers(channel)
+      );
     },
 
     getLastMessage(channel, initial, message) {
-        if (!message || message.channel.sid == channel.sid) {
-            channel.getMessages(1).then((messages) => {
-                this.$set(
-                    this.channelData[channel.sid],
-                    "lastMessage",
-                    messages.items.length ? messages.items[0] : {}
-                );
+      if (!message || message.channel.sid == channel.sid) {
+        channel.getMessages(1).then((messages) => {
+          this.$set(
+            this.channelData[channel.sid],
+            "lastMessage",
+            messages.items.length ? messages.items[0] : {}
+          );
 
-                this.updateUnread(channel);
-            });
-        }
+          this.updateUnread(channel);
+        });
+      }
     },
 
     listenTyping(channel) {
@@ -214,23 +216,34 @@ export default {
 
     async getSender(channel) {
       if (channel.members) {
-          const members = await channel.getMembers()
-          return members.find(
-            member => member.identity == this.userContext.identity
-          )
+        const members = await channel.getMembers();
+        return members.find(
+          (member) => member.identity == this.userContext.identity
+        );
       }
     },
 
     async updateUnread(channel) {
-        let unreadMessages = 0
-        const sender = await this.getSender(channel)
-        const isDifferentChannel = !this.activeChannel || (this.activeChannel.sid != channel.sid)
-        if (this.channelData[channel.sid].lastMessage && sender && isDifferentChannel) {
-          unreadMessages = (this.channelData[channel.sid].lastMessage.index - sender.lastConsumedMessageIndex) || 0;
-        }
-        this.$set(this.channelData[channel.sid], 'unreadMessages',  unreadMessages)
-        return unreadMessages;
-    }
+      let unreadMessages = 0;
+      const sender = await this.getSender(channel);
+      const isDifferentChannel =
+        !this.activeChannel || this.activeChannel.sid != channel.sid;
+      if (
+        this.channelData[channel.sid].lastMessage &&
+        sender &&
+        isDifferentChannel
+      ) {
+        unreadMessages =
+          this.channelData[channel.sid].lastMessage.index -
+            sender.lastConsumedMessageIndex || 0;
+      }
+      this.$set(
+        this.channelData[channel.sid],
+        "unreadMessages",
+        unreadMessages
+      );
+      return unreadMessages;
+    },
   },
 };
 </script>
