@@ -119,7 +119,7 @@ export default {
       const unreadMessageHTML = this.unreadMessages
         ? `<span class="head-indicator">${this.unreadMessages} </span>`
         : "";
-      const title = `Messaging ${unreadMessageHTML}`;
+      return `Messaging ${unreadMessageHTML}`;
     },
 
     unreadMessages() {
