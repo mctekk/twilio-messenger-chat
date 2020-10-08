@@ -120,18 +120,24 @@ export default {
     return {
       client: null,
       channels: [],
-      messages: [],
-      contacts: [],
       activeChannel: null,
       userContext: { identity: null }
     };
+  },
+  watch: {
+      receiver(receiver) {
+          console.log(receiver)
+          this.unlistenEvents();
+      }
   },
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
     }
   },
-  beforeDestroy() {},
+  beforeDestroy() {
+      this.unlistenEvents()
+  },
   methods: {
     async createClient(data) {
       const client = await Twilio.Client.create(data[this.tokenField], {
@@ -209,6 +215,25 @@ export default {
       client.on("channelUpdated", this.updateChannels);
       client.on("channelLeft", this.leaveChannel);
       client.on("channelRemoved", this.leaveChannel);
+    },
+
+    unlistenEvents() {
+        this.client.removeListener("channelJoined", channel => {
+            channel.removeListener("messageAdded", () => {
+                this.updateChannels();
+            });
+            this.updateChannels();
+        });
+        this.client.removeListener("tokenAboutToExpire", this.onTokenAboutToExpire);
+        this.client.removeListener("channelInvited", this.updateChannels);
+        this.client.removeListener("channelAdded", this.updateChannels);
+        this.client.removeListener("channelUpdated", this.updateChannels);
+        this.client.removeListener("channelLeft", this.leaveChannel);
+        this.client.removeListener("channelRemoved", this.leaveChannel);
+        this.client = null,
+        this.channels = [],
+        this.activeChannel = null,
+        this.userContext = { identity: null }
     },
 
     setActiveChannel(channel) {
