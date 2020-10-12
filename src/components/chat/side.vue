@@ -290,10 +290,10 @@ export default {
 }
 
 .head-indicator {
-  width: 24px;
+  width: 20px;
   margin-left: 4px;
-  height: 24px;
-  font-size: 14px;
+  height: 20px;
+  font-size: 12px;
   border: 1px solid white;
   background: transparentize(red, 0.2) !important;
   color: white;

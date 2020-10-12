@@ -162,7 +162,7 @@ export default {
   &__body {
     margin-left: 65px;
     margin-right: 15px;
-    padding-left: 15px;
+    padding-left: 5px;
     overflow: hidden;
     display: flex;
     justify-content: space-between;
@@ -176,7 +176,7 @@ export default {
     white-space: nowrap;
     break-inside: auto;
     height: 30px;
-    font-size: 15px;
+    font-size: 14px;
     overflow: hidden;
 
     &.message-loading {

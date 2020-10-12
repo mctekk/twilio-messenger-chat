@@ -17,7 +17,7 @@
 import axios from "axios";
 import TwilioChat from "./components/chat";
 let endpoint = process.env.VUE_APP_CHAT_ENDPOINT;
-// const utilitiesEndpoint = "https://apiutilitiesdev.kanvas.dev/v1";
+const len = endpoint.length;
 endpoint = endpoint.replace("chat", "");
 
 export default {

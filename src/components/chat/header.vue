@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-header">
+  <div class="chat-header" @click.prevent="$emit('settings')">
     <div class="chat-header__left">
       <div
         v-if="showBackButton"
@@ -24,7 +24,7 @@
     <div
       v-if="showSettings"
       class="chat-header__back-button"
-      @click="$emit('settings')"
+      @click.stop="$emit('settings')"
     >
       <i :class="rightIcon"></i>
     </div>
@@ -65,14 +65,16 @@ export default {
 
 <style lang="scss" scoped>
 .chat-header {
-  height: 59px;
-  min-height: 59px;
+  height: 48px;
+  min-height: 48px;
   overflow: hidden;
-  background: darken(dodgerblue, 30%) !important;;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr) 3rem;
+  background: darken(dodgerblue, 30%) !important;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 8px 8px 0 0;
   color: white;
   width: 100%;
+  cursor: pointer;
 
   &__left {
     grid-column-start: 1;

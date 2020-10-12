@@ -21,8 +21,8 @@ export default {
 
 <style lang="scss">
 .profile-image__container {
-  height: 35px;
-  width: 35px;
+  height: 30px;
+  width: 30px;
   background: whitesmoke;
   border-radius: 50%;
   margin-left: 15px;
