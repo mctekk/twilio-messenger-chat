@@ -2,7 +2,7 @@
   <div id="app" style="height: 98vh">
     <twilio-chat
       v-if="leadId && token"
-      :endpoint="`${endpoint}chat`"
+      :endpoint="`${endpoint}chats`"
       :show-header="false"
       :show-channel-list="false"
       :show-suggest-button="false"
@@ -17,7 +17,6 @@
 import axios from "axios";
 import TwilioChat from "./components/chat";
 let endpoint = process.env.VUE_APP_CHAT_ENDPOINT;
-const len = endpoint.length;
 endpoint = endpoint.replace("chat", "");
 
 export default {

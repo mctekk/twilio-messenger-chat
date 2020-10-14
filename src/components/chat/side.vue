@@ -174,12 +174,12 @@ export default {
       channel.on("messageAdded", (message) =>
         this.getLastMessage(channel, false, message)
       );
-      channel.on("memberUpdated", (event) => this.updateMembers(channel));
+      channel.on("memberUpdated", () => this.updateMembers(channel));
     },
 
     unlistenChannel(channel) {
       channel.removeListener("messageAdded", this.getLastMessage);
-      channel.removeListener("memberUpdated", (event) =>
+      channel.removeListener("memberUpdated", () =>
         this.updateMembers(channel)
       );
     },
