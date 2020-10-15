@@ -126,7 +126,6 @@ export default {
   },
   watch: {
       receiver(receiver) {
-          console.log(receiver)
           this.unlistenEvents();
       }
   },

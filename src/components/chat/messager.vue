@@ -167,8 +167,8 @@ export default {
 
     updateMembers() {
        this.channel.getMembers().then(members => {
-       const userAttributes = members.map((member, index) => {
-           const userMember = member.getUser().then(user => {
+        members.map((member, index) => {
+             member.getUser().then(user => {
                 const userAttributes =  user.attributes;
                 if (this.members[index]) {
                     this.$set(this.members[index], 'userAttributes', userAttributes)
@@ -177,8 +177,7 @@ export default {
                     this.members.push(member);
                 }
             });
-
-       })
+        })
       });
     },
 
@@ -215,7 +214,6 @@ export default {
         this.$nextTick(() => {
         const el = this.$refs.MessageContainer;
             if (el) {
-                console.log('rendered')
                 el.scrollTo({ top: el.scrollHeight, behavior });
             }
         })
@@ -231,7 +229,6 @@ export default {
     getMessages() {
       this.channel.getMessages(30).then(page => {
         this.messages = page.items || [];
-        console.log('set')
         this.scrollToBottom();
         const lastIndex = this.messages.length - 1;
         if (lastIndex >= 0) {
