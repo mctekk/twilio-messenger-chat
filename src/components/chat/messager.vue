@@ -167,19 +167,22 @@ export default {
     },
 
     updateMembers() {
-       this.channel.getMembers().then(members => {
-        members.map((member, index) => {
-             member.getUser().then(user => {
-                const userAttributes =  user.attributes;
-                if (this.members[index]) {
-                    this.$set(this.members[index], 'userAttributes', userAttributes)
-                } else {
-                    member.userAttributes = userAttributes;
-                    this.members.push(member);
-                }
+        this.channel.getMembers().then(members => {
+            this.members = members.map(member => {
+                member.userAttributes = {};
+                return member;
             });
-        })
-      });
+
+            members.map(member => {
+                member.getUser().then(user => {
+                    const index = this.members.findIndex(localMember => localMember.identity.toLowerCase() == member.state.identity.toLowerCase())
+                    if (index >= 0) {
+                        const userAttributes =  user.attributes;
+                        this.$set(this.members[index], 'userAttributes', userAttributes)
+                    }
+                });
+            })
+        });
     },
 
     async getDescription() {
