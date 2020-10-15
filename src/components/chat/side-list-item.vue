@@ -7,7 +7,7 @@
     <div class="chat-item__header">
       <div class="left-side">
         <profile-image
-            url="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+            :url="receiverImage"
         ></profile-image>
         <span class="chat-item__title">
           {{ channelName }}
@@ -75,7 +75,7 @@ export default {
     lastMessageBody() {
        const limit = 23
        const lastMessage = this.channelData.lastMessage
-       const message = lastMessage ? `${lastMessage.author || ''}: ${lastMessage.body || ''} ` : ""
+       const message = lastMessage ? `${this.getAuthorName() || ''}: ${lastMessage.body || ''} ` : ""
        return message.length > limit ? `${message.slice(0, limit)} ...` : message
     },
     receiver() {
@@ -85,6 +85,9 @@ export default {
           member => member.identity != this.userContext.identity
         )
       );
+    },
+    receiverImage() {
+        return this.receiver && this.receiver.userAttributes ? this.receiver.userAttributes.photoUrl : ""
     },
     sender() {
       return (
@@ -116,6 +119,15 @@ export default {
           this.channelData.lastMessage.index <= this.sender.lastConsumedMessageIndex
         );
       }
+    },
+
+    getAuthorName() {
+        if (this.channelData.members && this.channelData.lastMessage) {
+            const memberUser = this.channelData.members.find( member => member.identity == this.channelData.lastMessage.author)
+            return memberUser && memberUser.userAttributes.name ? memberUser.userAttributes.name : this.channelData.lastMessage.author;
+        }  else if (this.channelData.lastMessage) {
+            return this.channelData.lastMessage.author;
+        }
     },
 
     isSender(message) {

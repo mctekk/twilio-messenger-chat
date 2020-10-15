@@ -27,6 +27,7 @@
           :show-sender="channel.type == 'public'"
           :is-read="isRead(message)"
           :previous-message="index > 0 ? messages[index -1 ] : {}"
+          :members="members"
           :message="message"
         >
         </messager-item>
@@ -165,14 +166,24 @@ export default {
     },
 
     updateMembers() {
-      this.channel.getMembers().then(members => {
-        this.members = members;
+       this.channel.getMembers().then(members => {
+        members.map((member, index) => {
+             member.getUser().then(user => {
+                const userAttributes =  user.attributes;
+                if (this.members[index]) {
+                    this.$set(this.members[index], 'userAttributes', userAttributes)
+                } else {
+                    member.userAttributes = userAttributes;
+                    this.members.push(member);
+                }
+            });
+        })
       });
     },
 
     async getDescription() {
       this.updateMembers();
-      return await this.channel.getAttributes().then(attributes => {
+       return await this.channel.getAttributes().then(attributes => {
         this.description = attributes.description;
       });
     },
@@ -203,7 +214,6 @@ export default {
         this.$nextTick(() => {
         const el = this.$refs.MessageContainer;
             if (el) {
-                console.log('rendered')
                 el.scrollTo({ top: el.scrollHeight, behavior });
             }
         })
@@ -219,7 +229,6 @@ export default {
     getMessages() {
       this.channel.getMessages(30).then(page => {
         this.messages = page.items || [];
-        console.log('set')
         this.scrollToBottom();
         const lastIndex = this.messages.length - 1;
         if (lastIndex >= 0) {
