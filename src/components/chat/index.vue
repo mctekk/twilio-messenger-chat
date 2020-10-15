@@ -133,7 +133,7 @@ export default {
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
-    }
+    },
   },
   beforeDestroy() {
       this.unlistenEvents()
@@ -145,7 +145,8 @@ export default {
       });
       this.userContext = {
         ...data,
-        identity: client.user.identity
+        identity: client.user.identity,
+        user: client.user
       };
       this.client = client;
 

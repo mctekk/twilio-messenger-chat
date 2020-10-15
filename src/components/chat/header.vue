@@ -10,7 +10,7 @@
       </div>
 
       <profile-image
-        url="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+        :url="profileImage"
       ></profile-image>
 
       <div class="chat-header__title">
@@ -57,6 +57,9 @@ export default {
       type: String
     },
     title: {
+      type: String
+    },
+    profileImage: {
       type: String
     }
   }

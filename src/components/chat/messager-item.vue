@@ -1,7 +1,7 @@
 <template>
   <div class="message-list__item" :class="{ 'message-sender': isSender }">
     <span v-if="showSender" class="sender-name" :class="{ me: isSender }">
-      {{ message.author }}:</span
+      {{ authorName }}:</span
     >
     <div class="message-list__body" :class="{ 'padding-0': isVehicle }">
       <div
@@ -38,6 +38,10 @@ export default {
     message: {
       type: Object,
       required: true
+    },
+    members: {
+      type: Array,
+      required: true
     }
   },
   computed: {
@@ -47,6 +51,15 @@ export default {
 
     isVehicle() {
       return this.message.state.attributes.type == "dealer-vehicle";
+    },
+
+    authorName() {
+        if (this.members && this.members.length) {
+            const memberUser = this.members.find( member => member.identity == this.message.author)
+            return memberUser && memberUser.userAttributes.name ? memberUser.userAttributes.name : this.message.author;
+        }  else {
+            return this.message.author;
+        }
     },
 
     renderedMessage() {

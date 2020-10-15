@@ -2,6 +2,7 @@
   <div class="chat-side">
     <chat-header
       v-if="mobileDisplay || showHeader"
+      :profile-image="profileImage"
       :show-back-button="false"
       :show-settings="true"
       :left-icon="!addNewChat ? 'fa fa-menu' : 'fa fa-chevron-left'"
@@ -146,6 +147,9 @@ export default {
           return dateCreatedA > dateCreatedB ? -1 : 1;
         });
     },
+    profileImage() {
+        return this.userContext.user.attributes ? this.userContext.user.attributes.photoUrl : "";
+    }
   },
   beforeDestroy() {
     this.channels.forEach((channel) => {
@@ -165,9 +169,22 @@ export default {
       channel.getMembers().then((members) => {
         this.$set(this.channelData[channel.sid], "members", members);
 
+        members.map((member, index) => {
+            member.getUser().then(user => {
+                const userAttributes =  user.attributes;
+                if (this.channelData[channel.sid].members[index]) {
+                    this.$set(this.channelData[channel.sid].members[index], 'userAttributes', userAttributes)
+                } else {
+                    member.userAttributes = userAttributes;
+                    this.channelData[channel.sid].members.push(member);
+                }
+            });
+        })
+
         this.updateUnread(channel);
       });
     },
+
     listenChannel(channel) {
       this.getLastMessage(channel, true);
       this.updateMembers(channel);
@@ -221,6 +238,10 @@ export default {
           (member) => member.identity == this.userContext.identity
         );
       }
+    },
+
+    getSenderImage() {
+        return this.sender ? this.sender.userAttributes.imageUrl : ""
     },
 
     async updateUnread(channel) {
