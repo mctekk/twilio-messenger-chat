@@ -121,6 +121,11 @@ export default {
       }
     },
 
+
+    deleteChannel() {
+        this.channel.delete()
+    },
+
     getAuthorName() {
         if (this.channelData.members && this.channelData.lastMessage) {
             const memberUser = this.channelData.members.find( member => member.identity == this.channelData.lastMessage.author)
