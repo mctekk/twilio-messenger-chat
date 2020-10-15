@@ -114,6 +114,7 @@ export default {
         this.removeActiveChannelListeners();
         this.isLoading = true;
         this.channel = this.activeChannel;
+        this.updateMembers();
         this.getMessages();
         this.$emit("opened", this.channel.sid);
       },
