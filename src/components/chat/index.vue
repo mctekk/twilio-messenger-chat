@@ -114,6 +114,10 @@ export default {
     externalChannelHandle: {
       type: Boolean,
       default: false
+    },
+    user: {
+        type: String,
+        default: ""
     }
   },
   data() {
@@ -128,7 +132,7 @@ export default {
       receiver() {
           this.unlistenEvents();
       }
-  },
+    },
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
@@ -218,22 +222,25 @@ export default {
     },
 
     unlistenEvents() {
-        this.client.removeListener("channelJoined", channel => {
-            channel.removeListener("messageAdded", () => {
+        if (this.client) {
+            this.client.removeListener("channelJoined", channel => {
+                channel.removeListener("messageAdded", () => {
+                    this.updateChannels();
+                });
                 this.updateChannels();
             });
-            this.updateChannels();
-        });
-        this.client.removeListener("tokenAboutToExpire", this.onTokenAboutToExpire);
-        this.client.removeListener("channelInvited", this.updateChannels);
-        this.client.removeListener("channelAdded", this.updateChannels);
-        this.client.removeListener("channelUpdated", this.updateChannels);
-        this.client.removeListener("channelLeft", this.leaveChannel);
-        this.client.removeListener("channelRemoved", this.leaveChannel);
-        this.client = null,
-        this.channels = [],
-        this.activeChannel = null,
-        this.userContext = { identity: null }
+            this.client.removeListener("tokenAboutToExpire", this.onTokenAboutToExpire);
+            this.client.removeListener("channelInvited", this.updateChannels);
+            this.client.removeListener("channelAdded", this.updateChannels);
+            this.client.removeListener("channelUpdated", this.updateChannels);
+            this.client.removeListener("channelLeft", this.leaveChannel);
+            this.client.removeListener("channelRemoved", this.leaveChannel);
+            this.client = null,
+            this.channels = [],
+            this.activeChannel = null,
+            this.userContext = { identity: null }
+        }
+        this.$emit('update:is-expanded', false);
     },
 
     setActiveChannel(channel) {

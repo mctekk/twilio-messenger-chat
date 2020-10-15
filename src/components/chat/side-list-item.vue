@@ -14,9 +14,13 @@
         </span>
       </div>
 
-      <div class="title-indicators">
-        <span> 20 </span>
+      <div class="title-indicators" v-if="leadDays">
+        <span> {{ leadDays }} </span>
         <i class="fa fa-calendar"></i>
+      </div>
+      <div class="title-indicators" v-if="chronoTime">
+        <span> {{ chronoTime }} </span>
+        <i class="fa fa-clock"></i>
       </div>
     </div>
 
@@ -72,8 +76,14 @@ export default {
     channelName() {
       return this.channel.friendlyName || this.channel.uniqueName;
     },
+    leadDays() {
+      return this.channel.attributes.leadDays;
+    },
+    chronoTime() {
+      return this.channel.attributes.chrono;
+    },
     lastMessageBody() {
-       const limit = 23
+       const limit = 29
        const lastMessage = this.channelData.lastMessage
        const message = lastMessage ? `${this.getAuthorName() || ''}: ${lastMessage.body || ''} ` : ""
        return message.length > limit ? `${message.slice(0, limit)} ...` : message
@@ -161,7 +171,6 @@ export default {
 
   &__header {
     display: flex;
-    font-weight: bold;
     color: #4a5568;
     justify-content: space-between;
     padding-right: 20px;
@@ -172,7 +181,7 @@ export default {
   }
 
   &__title {
-      margin-left: 25px;
+      margin-left:18px;
       font-size: 16px;
   }
 
