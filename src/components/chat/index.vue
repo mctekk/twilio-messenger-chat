@@ -125,7 +125,7 @@ export default {
     };
   },
   watch: {
-      receiver(receiver) {
+      receiver() {
           this.unlistenEvents();
       }
   },
