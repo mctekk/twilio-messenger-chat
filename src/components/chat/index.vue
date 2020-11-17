@@ -84,7 +84,7 @@ export default {
       required: true
     },
     receiver: {
-      type: String,
+      type: String
     },
     showHeader: {
       type: Boolean,
@@ -116,8 +116,8 @@ export default {
       default: false
     },
     user: {
-        type: String,
-        default: ""
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -129,17 +129,17 @@ export default {
     };
   },
   watch: {
-      receiver() {
-          this.unlistenEvents();
-      }
-    },
+    receiver() {
+      this.unlistenEvents();
+    }
+  },
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
-    },
+    }
   },
   beforeDestroy() {
-      this.unlistenEvents()
+    this.unlistenEvents();
   },
   methods: {
     async createClient(data) {
@@ -154,8 +154,8 @@ export default {
       this.client = client;
 
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
-      this.updateChannels();
       this.loadChannelEvents(client);
+      this.updateChannels();
     },
 
     async loadChannel() {
@@ -193,12 +193,21 @@ export default {
       }
 
       const subscribed = await this.client
-        .getSubscribedChannels()
+        .getSubscribedChannels({ limit: 100 })
         .then(page => {
-          return page.items.map(item => item);
+          return this.appendChannels(page, []);
         });
       this.channels = subscribed;
       this.loadChannel();
+    },
+
+    async appendChannels(paginator, current) {
+      current.push(...paginator.items);
+      if (paginator.hasNextPage) {
+        return this.appendChannels(await paginator.nextPage(), current);
+      } else {
+        return current;
+      }
     },
 
     leaveChannel() {
@@ -222,25 +231,28 @@ export default {
     },
 
     unlistenEvents() {
-        if (this.client) {
-            this.client.removeListener("channelJoined", channel => {
-                channel.removeListener("messageAdded", () => {
-                    this.updateChannels();
-                });
-                this.updateChannels();
-            });
-            this.client.removeListener("tokenAboutToExpire", this.onTokenAboutToExpire);
-            this.client.removeListener("channelInvited", this.updateChannels);
-            this.client.removeListener("channelAdded", this.updateChannels);
-            this.client.removeListener("channelUpdated", this.updateChannels);
-            this.client.removeListener("channelLeft", this.leaveChannel);
-            this.client.removeListener("channelRemoved", this.leaveChannel);
-            this.client = null,
-            this.channels = [],
-            this.activeChannel = null,
-            this.userContext = { identity: null }
-        }
-        this.$emit('update:is-expanded', false);
+      if (this.client) {
+        this.client.removeListener("channelJoined", channel => {
+          channel.removeListener("messageAdded", () => {
+            this.updateChannels();
+          });
+          this.updateChannels();
+        });
+        this.client.removeListener(
+          "tokenAboutToExpire",
+          this.onTokenAboutToExpire
+        );
+        this.client.removeListener("channelInvited", this.updateChannels);
+        this.client.removeListener("channelAdded", this.updateChannels);
+        this.client.removeListener("channelUpdated", this.updateChannels);
+        this.client.removeListener("channelLeft", this.leaveChannel);
+        this.client.removeListener("channelRemoved", this.leaveChannel);
+        this.client = null;
+        this.channels = [];
+        this.activeChannel = null;
+        this.userContext = { identity: null };
+      }
+      this.$emit("update:is-expanded", false);
     },
 
     setActiveChannel(channel) {
@@ -248,11 +260,11 @@ export default {
     },
 
     handleChannelClick(channel) {
-        if (this.externalChannelHandle) {
-            this.$emit('channel-clicked', channel);
-        } else {
-            this.joinChannel(channel)
-        }
+      if (this.externalChannelHandle) {
+        this.$emit("channel-clicked", channel);
+      } else {
+        this.joinChannel(channel);
+      }
     },
 
     sendMessage(message, attributes) {
