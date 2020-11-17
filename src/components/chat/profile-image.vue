@@ -19,10 +19,10 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .profile-image__container {
-  height: 30px;
-  width: 30px;
+  height: 35px;
+  width: 35px;
   background: whitesmoke;
   border-radius: 50%;
   margin-left: 15px;
