@@ -196,6 +196,7 @@ export default {
 
     unlistenChannel(channel) {
       channel.removeListener("messageAdded", this.getLastMessage);
+      channel.removeListener("updated", () => {})
       channel.removeListener("memberUpdated", () =>
         this.updateMembers(channel)
       );
