@@ -2,6 +2,7 @@
   <div id="app" style="height: 98vh">
     <twilio-chat
       v-if="leadId && token"
+       token-field="channel_client_token"
       :endpoint="`${endpoint}chats`"
       :show-header="false"
       :show-channel-list="false"

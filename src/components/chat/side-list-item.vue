@@ -6,26 +6,24 @@
   >
     <div class="chat-item__header">
       <div class="left-side">
-        <profile-image
-            :url="receiverImage"
-        ></profile-image>
+        <profile-image :url="receiverImage"></profile-image>
         <span class="chat-item__title">
           {{ channelName }}
         </span>
       </div>
 
-      <div class="title-indicators" v-if="leadDays">
-        <span> {{ leadDays }} </span>
-        <i class="fa fa-calendar"></i>
+      <div class="title-indicators" v-if="stopwatch">
+        <span> {{ stopwatch }} </span>
+        <i class="fas fa-history"></i>
       </div>
-      <div class="title-indicators" v-if="chronoTime">
-        <span> {{ chronoTime }} </span>
-        <i class="fa fa-clock"></i>
+      <div class="title-indicators" v-else>
+        <span> {{ daysActive() }} Days </span>
+        <i class="fa fa-calendar"></i>
       </div>
     </div>
 
     <div class="chat-item__body">
-      <div class="message" :class="{'message-loading': isLoading }">
+      <div class="message" :class="{ 'message-loading': isLoading }">
         {{ lastMessageBody }}
       </div>
       <div v-if="unreadMessages" class="new-message-indicator">
@@ -37,37 +35,52 @@
 
 <script>
 import ProfileImage from "./profile-image";
+import Tracker from "../tracker.js";
 
 export default {
   components: {
-    ProfileImage
+    ProfileImage,
   },
   props: {
     channel: {
       type: Object,
-      required: true
+      required: true,
     },
     channelData: {
-        type: Object,
-        default() {
-            return {}
-        }
+      type: Object,
+      default() {
+        return {};
+      },
     },
     activeChannel: {
-      type: Object
+      type: Object,
     },
     userContext: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       lastMessage: {},
       typing: [],
       members: [],
-      newMessages: 0
+      newMessages: 0,
+      tracker: null,
+      stopwatch: null
     };
+  },
+  created() {
+    this.watchTime();
+  },
+  mounted() {
+    this.$root.$on("leads:stopwatch", (data) => {
+        if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
+            this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
+            this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
+            this.watchTime();
+        }
+    });
   },
   computed: {
     descriptionText() {
@@ -83,41 +96,47 @@ export default {
       return this.channel.attributes.chrono;
     },
     lastMessageBody() {
-       const limit = 29
-       const lastMessage = this.channelData.lastMessage
-       const message = lastMessage ? `${this.getAuthorName() || ''}: ${lastMessage.body || ''} ` : ""
-       return message.length > limit ? `${message.slice(0, limit)} ...` : message
+      const limit = 29;
+      const lastMessage = this.channelData.lastMessage;
+      const message = lastMessage
+        ? `${this.getAuthorName() || ""}: ${lastMessage.body || ""} `
+        : "";
+      return message.length > limit
+        ? `${message.slice(0, limit)} ...`
+        : message;
     },
     receiver() {
       return (
         this.channelData.members &&
         this.channelData.members.find(
-          member => member.identity != this.userContext.identity
+          (member) => member.identity != this.userContext.identity
         )
       );
     },
     receiverImage() {
-        return this.receiver && this.receiver.userAttributes ? this.receiver.userAttributes.photoUrl : ""
+      return this.receiver && this.receiver.userAttributes
+        ? this.receiver.userAttributes.photoUrl
+        : "";
     },
     sender() {
       return (
         this.channelData.members &&
         this.channelData.members.find(
-          member => member.identity == this.userContext.identity
+          (member) => member.identity == this.userContext.identity
         )
       );
     },
 
     unreadMessages() {
-      return this.channelData.unreadMessages
+      return this.channelData.unreadMessages;
     },
 
     isLoading() {
-        return this.channelData.lastMessage ? false : true;
+      return this.channelData.lastMessage ? false : true;
     },
     isActive() {
       return this.activeChannel && this.channel.sid == this.activeChannel.sid;
-    }
+    },
   },
   methods: {
     isRead() {
@@ -126,29 +145,54 @@ export default {
       } else if (this.sender) {
         return (
           this.receiver &&
-          this.channelData.lastMessage.index <= this.sender.lastConsumedMessageIndex
+          this.channelData.lastMessage.index <=
+            this.sender.lastConsumedMessageIndex
         );
       }
     },
 
-
     deleteChannel() {
-        this.channel.delete()
+      this.channel.delete();
     },
 
     getAuthorName() {
-        if (this.channelData.members && this.channelData.lastMessage) {
-            const memberUser = this.channelData.members.find( member => member.identity == this.channelData.lastMessage.author)
-            return memberUser && memberUser.userAttributes.name ? memberUser.userAttributes.name : this.channelData.lastMessage.author;
-        }  else if (this.channelData.lastMessage) {
-            return this.channelData.lastMessage.author;
-        }
+      if (this.channelData.members && this.channelData.lastMessage) {
+        const memberUser = this.channelData.members.find(
+          (member) => member.identity == this.channelData.lastMessage.author
+        );
+        return memberUser && memberUser.userAttributes
+          ? memberUser.userAttributes.name
+          : this.channelData.lastMessage.author;
+      } else if (this.channelData.lastMessage) {
+        return this.channelData.lastMessage.author;
+      }
     },
 
     isSender(message) {
       return this.userContext.identity == message.author;
     },
-  }
+
+    watchTime() {
+      this.trackTime(this.channel.attributes);
+    },
+
+    daysActive() {
+      return Tracker.daysPassed(this.channel.attributes.lead_created_at || this.channel.dateCreated);
+    },
+
+    trackTime(formData) {
+      if (formData && formData.chrono_start_date) {
+        this.tracker = this.tracker || new Tracker();
+        this.tracker.trackTime(formData.chrono_start_date, (duration) => {
+          this.stopwatch = duration;
+        });
+      } else if (this.tracker) {
+        this.tracker.stop();
+        this.tracker = null;
+        this.stopwatch = null;
+      }
+    },
+  },
 };
 </script>
 
@@ -176,13 +220,13 @@ export default {
     padding-right: 20px;
 
     .left-side {
-        display: flex;
+      display: flex;
     }
   }
 
   &__title {
-      margin-left:18px;
-      font-size: 16px;
+    margin-left: 18px;
+    font-size: 16px;
   }
 
   &__body {
@@ -206,23 +250,23 @@ export default {
     overflow: hidden;
 
     &.message-loading {
-        background: #ddd;
-        color: #ddd;
-        border-radius: 6px;
-        position: relative;
-        // animation: skeleton-loading 1.5s infinite;
+      background: #ddd;
+      color: #ddd;
+      border-radius: 6px;
+      position: relative;
+      // animation: skeleton-loading 1.5s infinite;
 
-        &::after {
-            display: block;
-            top: 0;
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, transparent, #eee, transparent);
-            animation: skeleton-wave 1.8s infinite;
-        }
+      &::after {
+        display: block;
+        top: 0;
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, #eee, transparent);
+        animation: skeleton-wave 1.8s infinite;
+      }
     }
   }
 
@@ -262,22 +306,22 @@ export default {
 }
 
 @keyframes skeleton-loading {
-    0% {
-        opacity: .5;
-    }
+  0% {
+    opacity: 0.5;
+  }
 
-    50% {
-        opacity: 1;
-    }
+  50% {
+    opacity: 1;
+  }
 
-    100% {
-        opacity: .5;
-    }
+  100% {
+    opacity: 0.5;
+  }
 }
 
-@keyframes skeleton-wave{
-    100% {
-        transform: translateX(100%);
-    }
+@keyframes skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
 }
 </style>

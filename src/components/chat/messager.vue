@@ -196,12 +196,23 @@ export default {
     },
 
     sendMessage(message, attributes = {}) {
+        if (message.includes("/destroy")) {
+            this.channel.delete().then(function(channel) {
+                console.log('Deleted channel: ' + channel.sid);
+            });;
+            this.clearMessageForm()
+            return
+        }
       if (message.trim()) {
         this.channel.sendMessage(message, attributes);
+        this.clearMessageForm()
+      }
+    },
+
+    clearMessageForm() {
         setTimeout(() => {
           this.formData.message = "";
         });
-      }
     },
 
     listenTyping(e) {
@@ -240,9 +251,7 @@ export default {
         }
         this.channel.on("messageAdded", this.addMessage);
         this.channel.on("memberUpdated", this.updateMembers);
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 300);
+        this.isLoading = false;
       });
 
       this.channel.on("typingStarted", member => {
