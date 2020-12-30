@@ -26,7 +26,7 @@
           :is-sender="isSender(message)"
           :show-sender="channel.type == 'public'"
           :is-read="isRead(message)"
-          :previous-message="index > 0 ? messages[index -1 ] : {}"
+          :previous-message="index > 0 ? messages[index - 1] : {}"
           :members="members"
           :message="message"
         >
@@ -167,27 +167,31 @@ export default {
     },
 
     updateMembers() {
-        this.channel.getMembers().then(members => {
-            this.members = members.map(member => {
-                member.userAttributes = {};
-                return member;
-            });
-
-            members.map(member => {
-                member.getUser().then(user => {
-                    const index = this.members.findIndex(localMember => localMember.identity.toLowerCase() == member.state.identity.toLowerCase())
-                    if (index >= 0) {
-                        const userAttributes =  user.attributes;
-                        this.$set(this.members[index], 'userAttributes', userAttributes)
-                    }
-                });
-            })
+      this.channel.getMembers().then(members => {
+        this.members = members.map(member => {
+          member.userAttributes = {};
+          return member;
         });
+
+        members.map(member => {
+          member.getUser().then(user => {
+            const index = this.members.findIndex(
+              localMember =>
+                localMember.identity.toLowerCase() ==
+                member.state.identity.toLowerCase()
+            );
+            if (index >= 0) {
+              const userAttributes = user.attributes;
+              this.$set(this.members[index], "userAttributes", userAttributes);
+            }
+          });
+        });
+      });
     },
 
     async getDescription() {
       this.updateMembers();
-       return await this.channel.getAttributes().then(attributes => {
+      return await this.channel.getAttributes().then(attributes => {
         this.description = attributes.description;
       });
     },
@@ -196,23 +200,23 @@ export default {
     },
 
     sendMessage(message, attributes = {}) {
-        if (message.includes("/destroy")) {
-            this.channel.delete().then(function(channel) {
-                console.log('Deleted channel: ' + channel.sid);
-            });;
-            this.clearMessageForm()
-            return
-        }
+      if (message.includes("/destroy")) {
+        this.channel.delete().then(function(channel) {
+          console.log("Deleted channel: " + channel.sid);
+        });
+        this.clearMessageForm();
+        return;
+      }
       if (message.trim()) {
         this.channel.sendMessage(message, attributes);
-        this.clearMessageForm()
+        this.clearMessageForm();
       }
     },
 
     clearMessageForm() {
-        setTimeout(() => {
-          this.formData.message = "";
-        });
+      setTimeout(() => {
+        this.formData.message = "";
+      });
     },
 
     listenTyping(e) {
@@ -226,12 +230,12 @@ export default {
     },
 
     scrollToBottom(behavior) {
-        this.$nextTick(() => {
+      this.$nextTick(() => {
         const el = this.$refs.MessageContainer;
-            if (el) {
-                el.scrollTo({ top: el.scrollHeight, behavior });
-            }
-        })
+        if (el) {
+          el.scrollTo({ top: el.scrollHeight, behavior });
+        }
+      });
     },
 
     removeActiveChannelListeners() {
@@ -242,6 +246,10 @@ export default {
     },
 
     getMessages() {
+      this.getMessagesFunc();
+    },
+
+    getMessagesFunc() {
       this.channel.getMessages(30).then(page => {
         this.messages = page.items || [];
         this.scrollToBottom();
@@ -286,62 +294,61 @@ export default {
 
 <style lang="scss">
 .message-list {
-    position: relative;
-    flex: 1 1 0;
-    order: 2;
+  position: relative;
+  flex: 1 1 0;
+  order: 2;
 
-    &__body {
-        padding: 0.75rem 1.25rem;
-        width: fit-content;
-        border-radius: 1rem;
-        border-top-left-radius: 0;
-        width: 100%;
-    }
+  &__body {
+    padding: 0.75rem 1.25rem;
+    width: fit-content;
+    border-radius: 1rem;
+    border-top-left-radius: 0;
+    width: 100%;
+  }
 
-    &__body.padding-0 {
-        padding: 0 0 0 0;
-    }
+  &__body.padding-0 {
+    padding: 0 0 0 0;
+  }
 
-    &__item {
-        margin: 15px;
-        width: fit-content;
-        padding: 0 1rem;
+  &__item {
+    margin: 15px;
+    width: fit-content;
+    padding: 0 1rem;
 
     &.message-sender {
-        right: 0;
-        margin-left: auto;
+      right: 0;
+      margin-left: auto;
 
-        .message-list__body {
-            border-radius: 1rem;
-            border-top-right-radius: 0;
-        }
-
+      .message-list__body {
+        border-radius: 1rem;
+        border-top-right-radius: 0;
+      }
     }
 
     a {
-        color: #eee;
-        text-decoration: underline;
+      color: #eee;
+      text-decoration: underline;
     }
 
     .me {
-        font-weight: bold;
+      font-weight: bold;
     }
-    }
+  }
 
-    &__text {
-        white-space: pre-wrap;
-    }
+  &__text {
+    white-space: pre-wrap;
+  }
 
-    .message-container {
-        position: absolute;
-        top: 0;
-        z-index: 100;
-        display: block;
-        width: 100%;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: scroll;
-    }
+  .message-container {
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
 }
 
 .message-toolbar {

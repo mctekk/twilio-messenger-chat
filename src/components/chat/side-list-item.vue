@@ -17,8 +17,7 @@
         <i class="fas fa-history"></i>
       </div>
       <div class="title-indicators" v-else>
-        <span> {{ daysActive() }} Days </span>
-        <i class="fa fa-calendar"></i>
+        <span> {{ visits() }} Visits </span>
       </div>
     </div>
 
@@ -78,6 +77,7 @@ export default {
         if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
             this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
             this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
+            this.$set(this.channel.attributes, "visits", data.visits)
             this.watchTime();
         }
     });
@@ -176,8 +176,8 @@ export default {
       this.trackTime(this.channel.attributes);
     },
 
-    daysActive() {
-      return Tracker.daysPassed(this.channel.attributes.lead_created_at || this.channel.dateCreated);
+    visits() {
+      return Number(this.channel.attributes.visits || this.channel.visitis  || 0);
     },
 
     trackTime(formData) {

@@ -35,7 +35,9 @@ export default {
       border-radius: 50%;
   }
 
-  &::after {
+
+
+  &.status-active::after {
     content: "";
     background: green;
     width: 14px;
