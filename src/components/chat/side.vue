@@ -166,7 +166,7 @@ export default {
   },
   methods: {
     updateMembers(channel) {
-      channel.getMembers().then((members) => {
+      channel.getMembers().then(members => {
         this.$set(this.channelData[channel.sid], "members", members);
 
         members.map((member, index) => {
@@ -248,23 +248,16 @@ export default {
     async updateUnread(channel) {
       let unreadMessages = 0;
       const sender = await this.getSender(channel);
-      const isDifferentChannel =
-        !this.activeChannel || this.activeChannel.sid != channel.sid;
-      if (
-        this.channelData[channel.sid].lastMessage &&
-        sender &&
-        isDifferentChannel
-      ) {
-        unreadMessages =
-          this.channelData[channel.sid].lastMessage.index -
-            sender.lastConsumedMessageIndex || 0;
+      const isDifferentChannel = !this.activeChannel || this.activeChannel.sid != channel.sid;
+      if ( this.channelData[channel.sid].lastMessage && sender && isDifferentChannel ) {
+         //   If the message doesnt come from him
+          if (this.channelData[channel.sid].lastMessage.author !== sender.identity) {
+            unreadMessages = this.channelData[channel.sid].lastMessage.index - sender.lastConsumedMessageIndex || 0;
+            this.$set(this.channelData[channel.sid], "unreadMessages", unreadMessages);
+            return unreadMessages;
+          }
       }
-      this.$set(
-        this.channelData[channel.sid],
-        "unreadMessages",
-        unreadMessages
-      );
-      return unreadMessages;
+
     },
   },
 };
