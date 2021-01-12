@@ -13,16 +13,34 @@
     </chat-header>
     <template v-if="!addNewChat && isExpanded">
       <div class="chat-side__body">
-        <div class="chat-side__search">
-          <i class="fa fa-search"></i>
-          <input
-            class="seach-input"
-            type="text"
-            placeholder="Search ..."
-            v-model="search"
-          />
-          <i class="fa fa-sliders-h"></i>
-        </div>
+          <div class="chat-side__header">
+            <div class="chat-side__search">
+            <i class="fa fa-search"></i>
+            <input
+                class="seach-input"
+                type="text"
+                placeholder="Search ..."
+                v-model="search"
+            />
+            <div class="chat-side__action-container"
+                :class="{'showing-filters': showFilters}"
+                @click="showFilters=!showFilters">
+                <i class="fa fa-sliders-h"></i>
+            </div>
+
+            </div>
+            <div class="chat-side__filters" v-if="showFilters">
+                <button
+                    v-for="(filter, filterName) in filters"
+                    class="btn btn-tab"
+                    :class="{selected: selectedFilter == filterName}"
+                    :key="filterName"
+                    @click="selectedFilter = filterName"
+                >
+                    {{ filter.label }}
+                </button>
+            </div>
+          </div>
 
         <div class="chat-side__list chat-scroller">
           <chat-side-item
@@ -54,6 +72,7 @@
 <script>
 import ChatHeader from "./header";
 import ChatSideItem from "./side-list-item";
+import Fuse from "fuse.js";
 
 export default {
   name: "ChatSider",
@@ -93,6 +112,30 @@ export default {
     return {
       channelData: {},
       search: "",
+      showFilters: false,
+      selectedFilter: 'all',
+      filters: {
+          all: {
+              value: '',
+              label: "All Messages",
+              field: ''
+          },
+          active: {
+              label: 'Active',
+              value: 0,
+              field: 'status'
+          },
+          won: {
+              label: 'Won',
+              value: 1,
+              field: 'status'
+          },
+          lost: {
+              label: 'Lost',
+              value: 2,
+              field: 'status'
+          }
+      },
       addNewChat: false,
     };
   },
@@ -130,15 +173,11 @@ export default {
       }, 0);
     },
 
-    filteredChannels() {
-      return this.channels
-        .filter((channel) => {
-          return (
-            channel.lastMessage && channel.uniqueName.includes(this.search)
-          );
-        })
+    visibleChannels() {
+        const selectedFilter = this.filters[this.selectedFilter].value;
+        return this.channels.filter(channel => channel.lastMessage && (!selectedFilter || channel.attributes.status == selectedFilter))
         .sort((a, b) => {
-          const dateCreatedA = a.lastMessage
+            const dateCreatedA = a.lastMessage
             ? a.lastMessage.dateCreated.toISOString()
             : "";
           const dateCreatedB = b.lastMessage
@@ -146,6 +185,29 @@ export default {
             : "";
           return dateCreatedA > dateCreatedB ? -1 : 1;
         });
+    },
+
+    filteredChannels() {
+        const options = {
+            // isCaseSensitive: false,
+            // includeScore: false,
+            // shouldSort: true,
+            // includeMatches: false,
+            // findAllMatches: false,
+            // minMatchCharLength: 1,
+            // location: 0,
+            threshold: 0.2,
+            distance: 50,
+            // useExtendedSearch: false,
+            // ignoreLocation: false,
+            // ignoreFieldNorm: false,
+            keys: [
+                "friendlyName"
+            ]
+        };
+
+        const fuse = new Fuse(this.visibleChannels, options);
+        return !this.search ? this.visibleChannels : fuse.search(this.search || "").map( item => item.item)
     },
     profileImage() {
         return this.userContext.user.attributes ? this.userContext.user.attributes.photoUrl : "";
@@ -279,6 +341,7 @@ export default {
     padding: 0 15px;
     color: #777;
     position: relative;
+    overflow: hidden;
     input {
       height: 36px;
       border: none;
@@ -290,6 +353,40 @@ export default {
         outline: none;
       }
     }
+  }
+
+  &__action-container {
+    height: 100%;
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: -15px;
+    cursor: pointer;
+
+      &.showing-filters {
+            font-weight: bolder;
+            color: #333;
+            background: #e4e4e4;
+        }
+  }
+
+  &__filters {
+      width: 100%;
+      display: flex;
+
+      .btn-tab {
+          width: 100%;
+          border-radius: 0 0 0 0;
+          &:active, &:focus {
+              box-shadow: none;
+          }
+          &.selected {
+              background: #cacaca;
+              font-weight: bold;
+          }
+      }
+
   }
 
   &__body {
