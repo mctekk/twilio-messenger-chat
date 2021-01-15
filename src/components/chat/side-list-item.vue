@@ -77,7 +77,7 @@ export default {
         if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
             this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
             this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
-            this.$set(this.channel.attributes, "visits", data.visits)
+            this.$set(this.channel.attributes, "leads_visits_count", data.leads_visits_count)
             this.watchTime();
         }
     });
@@ -177,7 +177,7 @@ export default {
     },
 
     visits() {
-      return Number(this.channel.attributes.visits || this.channel.visitis  || 0);
+      return Number(this.channel.attributes.leads_visits_count || this.channel.leads_visits_count  || 0);
     },
 
     trackTime(formData) {
