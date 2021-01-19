@@ -9,7 +9,7 @@
         :show-ui="false"
         @logged="createClient"
       ></chat-Login>
-      <chat-loading v-if="!showChannelList"> </chat-loading>
+      <chat-loading v-if="!showChannelList && !isLoaded"> </chat-loading>
     </div>
 
     <div class="home-container h-full" v-else>
@@ -21,6 +21,7 @@
         <chat-side
           v-if="showChannelList"
           :is-expanded="isExpanded"
+          :is-loading="!isLoaded"
           :user-context="userContext"
           :channels="channels"
           :active-channel="activeChannel"
@@ -124,6 +125,7 @@ export default {
     return {
       client: null,
       channels: [],
+      isLoaded: false,
       activeChannel: null,
       userContext: { identity: null }
     };
@@ -143,6 +145,7 @@ export default {
   },
   methods: {
     async createClient(data) {
+      console.time('initialLoad')
       const client = await Twilio.Client.create(data[this.tokenField], {
         logLevel: "info"
       });
@@ -157,17 +160,15 @@ export default {
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
       this.loadChannelEvents(client);
       this.updateChannels();
+      console.timeEnd('tnitialLoad')
     },
 
     async loadChannel() {
       if (!this.activeChannel && !this.showChannelList) {
-        this.client
-          .getChannelBySid(this.userContext.channel_sid)
-          .then(channel => {
-            if (channel) {
-              this.joinChannel(channel);
-            }
-          });
+        const channel = await this.client.getChannelBySid(this.userContext.channel_sid)
+        if (channel) {
+          this.joinChannel(channel);
+        }
       }
     },
 
@@ -194,14 +195,16 @@ export default {
       }
 
       if (!this.showChannelList) {
-        this.loadChannel();
+        await this.loadChannel();
+        this.isLoaded = true;
       } else {
-        const subscribed = await this.client
+          const subscribed = await this.client
           .getSubscribedChannels({ limit: 100 })
           .then(page => {
-            return this.appendChannels(page, []);
+              return this.appendChannels(page, []);
           });
         this.channels = subscribed;
+        this.isLoaded = true;
       }
     },
 

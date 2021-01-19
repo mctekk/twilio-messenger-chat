@@ -28,6 +28,7 @@
 
 <script>
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default {
   name: "Login",
@@ -43,7 +44,7 @@ export default {
       }
     },
     receiver: {
-      type: String,
+      type: String
     },
     httpMethod: {
       type: Function
@@ -59,8 +60,11 @@ export default {
       }
     };
   },
-  mounted() {
-    if (this.receiver) {
+  created() {
+    const loginData = this.getData();
+    if (loginData) {
+      this.$emit("logged", loginData);
+    } else if (this.receiver) {
       this.formData.identity = this.receiver;
       this.login();
     }
@@ -70,17 +74,27 @@ export default {
       this.getAccessToken(this.formData.identity);
     },
 
+    getData() {
+      const token = Cookies.get("kanvas:chat");
+      return JSON.parse(token);
+    },
+
+    setData(data) {
+      Cookies.set("kanvas:chat", data);
+      this.$emit("logged", data);
+    },
+
     getAccessToken(identity) {
       if (this.httpMethod) {
         this.httpMethod(`${this.endpoint}/${identity}`).then(({ data }) => {
-          this.$emit("logged", data);
+          this.setData(data);
         });
         return;
       } else {
         axios
           .get(`${this.endpoint}/${identity}`, this.httpOptions)
           .then(({ data }) => {
-            this.$emit("logged", data);
+            this.setData(data);
           });
       }
     }
