@@ -16,6 +16,7 @@
     "date-fns": "^2.16.1",
     "duration": "^0.2.2",
     "fuse.js": "^6.4.6",
+    "js-cookie": "^2.2.1",
     "twilio-chat": "^4.0.0",
     "vue": "^2.6.11"
   },

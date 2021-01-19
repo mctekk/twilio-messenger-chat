@@ -43,16 +43,21 @@
           </div>
 
         <div class="chat-side__list chat-scroller">
-          <chat-side-item
-            v-for="channel in filteredChannels"
-            :key="channel.sid"
-            :channel="channel"
-            :channel-data="channelData[channel.sid]"
-            :user-context="userContext"
-            :active-channel="activeChannel"
-            @click="$emit('click', channel)"
-          >
-          </chat-side-item>
+            <template v-if="!isLoading">
+                <chat-side-item
+                    v-for="channel in filteredChannels"
+                    :key="channel.sid"
+                    :channel="channel"
+                    :channel-data="channelData[channel.sid]"
+                    :user-context="userContext"
+                    :active-channel="activeChannel"
+                    @click="$emit('click', channel)"
+                >
+                </chat-side-item>
+            </template>
+           <chat-loading v-else>
+
+           </chat-loading>
         </div>
       </div>
     </template>
@@ -73,12 +78,14 @@
 import ChatHeader from "./header";
 import ChatSideItem from "./side-list-item";
 import Fuse from "fuse.js";
+import ChatLoading from "./loading";
 
 export default {
   name: "ChatSider",
   components: {
     ChatHeader,
     ChatSideItem,
+    ChatLoading
   },
   props: {
     mobileDisplay: {
@@ -107,6 +114,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    isLoading: {
+      type: Boolean,
+      required: true,
+    },
+
   },
   data() {
     return {
