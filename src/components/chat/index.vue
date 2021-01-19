@@ -68,106 +68,106 @@ export default {
     ChatMessager,
     ChatSide,
     ChatLogin,
-    ChatLoading,
+    ChatLoading
   },
   props: {
     tokenField: {
       type: String,
-      default: "channel_owner_token",
+      default: "channel_owner_token"
     },
     displayFull: {
       type: Boolean,
-      default: false,
+      default: false
     },
     endpoint: {
       type: String,
-      required: true,
+      required: true
     },
     receiver: {
-      type: String,
+      type: String
     },
     showHeader: {
       type: Boolean,
-      default: true,
+      default: true
     },
     showChannelList: {
       type: Boolean,
-      default: false,
+      default: false
     },
     showSuggestButton: {
       type: Boolean,
-      default: true,
+      default: true
     },
     httpOptions: {
       type: Object,
       default() {
         return {};
-      },
+      }
     },
     httpMethod: {
-      type: Function,
+      type: Function
     },
     isExpanded: {
       type: Boolean,
-      default: false,
+      default: false
     },
     externalChannelHandle: {
       type: Boolean,
-      default: false,
+      default: false
     },
     user: {
       type: String,
-      default: "",
-    },
+      default: ""
+    }
   },
   data() {
     return {
       client: null,
       channels: [],
       activeChannel: null,
-      userContext: { identity: null },
+      userContext: { identity: null }
     };
   },
   watch: {
     receiver() {
       this.unlistenEvents();
-    },
+    }
   },
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
-    },
+    }
   },
   beforeDestroy() {
     this.unlistenEvents();
   },
   methods: {
-    createClient(data) {
-      Twilio.Client.create(data[this.tokenField], {
-        logLevel: "info",
-      }).then((client) => {
-        this.userContext = {
-          ...data,
-          identity: client.user.identity,
-          user: client.user,
-        };
-        this.client = client;
-
-        client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
-        this.loadChannelEvents(client);
-        this.updateChannels();
+    async createClient(data) {
+      const client = await Twilio.Client.create(data[this.tokenField], {
+        logLevel: "info"
       });
+
+      this.userContext = {
+        ...data,
+        identity: client.user.identity,
+        user: client.user
+      };
+      this.client = client;
+
+      client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
+      this.loadChannelEvents(client);
+      this.updateChannels();
     },
 
     async loadChannel() {
       if (!this.activeChannel && !this.showChannelList) {
-        const channel = this.channels.find((channel) => {
-          return channel.sid == this.userContext.channel_sid;
-        });
-
-        if (channel) {
-          this.joinChannel(channel);
-        }
+        this.client
+          .getChannelBySid(this.userContext.channel_sid)
+          .then(channel => {
+            if (channel) {
+              this.joinChannel(channel);
+            }
+          });
       }
     },
 
@@ -193,13 +193,16 @@ export default {
         channel.join();
       }
 
-      const subscribed = await this.client
-        .getSubscribedChannels({ limit: 100 })
-        .then((page) => {
-          return this.appendChannels(page, []);
-        });
-      this.channels = subscribed;
-      this.loadChannel();
+      if (!this.showChannelList) {
+        this.loadChannel();
+      } else {
+        const subscribed = await this.client
+          .getSubscribedChannels({ limit: 100 })
+          .then(page => {
+            return this.appendChannels(page, []);
+          });
+        this.channels = subscribed;
+      }
     },
 
     async appendChannels(paginator, current) {
@@ -217,7 +220,7 @@ export default {
     },
 
     loadChannelEvents(client) {
-      client.on("channelJoined", (channel) => {
+      client.on("channelJoined", channel => {
         channel.on("messageAdded", () => {
           this.updateChannels();
         });
@@ -233,7 +236,7 @@ export default {
 
     unlistenEvents() {
       if (this.client) {
-        this.client.removeListener("channelJoined", (channel) => {
+        this.client.removeListener("channelJoined", channel => {
           channel.removeListener("messageAdded", () => {
             this.updateChannels();
           });
@@ -270,8 +273,8 @@ export default {
 
     sendMessage(message, attributes) {
       this.$refs.messenger.sendMessage(message, attributes);
-    },
-  },
+    }
+  }
 };
 </script>
 
