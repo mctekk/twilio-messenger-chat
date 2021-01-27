@@ -23,7 +23,7 @@
           :is-expanded="isExpanded"
           :is-loading="!isLoaded"
           :user-context="userContext"
-          :channels="channels"
+          :channels="channelList"
           :active-channel="activeChannel"
           :show-header="showHeader"
           @update:is-expanded="$emit('update:is-expanded', $event)"
@@ -124,7 +124,7 @@ export default {
   data() {
     return {
       client: null,
-      channels: [],
+      channels: {},
       isLoaded: false,
       activeChannel: null,
       userContext: { identity: null }
@@ -138,6 +138,9 @@ export default {
   computed: {
     isLoggedIn() {
       return this.userContext.identity;
+    },
+    channelList() {
+        return Object.values(this.channels);
     }
   },
   beforeDestroy() {
@@ -145,7 +148,7 @@ export default {
   },
   methods: {
     async createClient(data) {
-      console.time('initialLoad')
+      console.time("initialLoad");
       const client = await Twilio.Client.create(data[this.tokenField], {
         logLevel: "info"
       });
@@ -160,12 +163,14 @@ export default {
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
       this.loadChannelEvents(client);
       this.updateChannels();
-      console.timeEnd('tnitialLoad')
+      console.timeEnd("tnitialLoad");
     },
 
     async loadChannel() {
       if (!this.activeChannel && !this.showChannelList) {
-        const channel = await this.client.getChannelBySid(this.userContext.channel_sid)
+        const channel = await this.client.getChannelBySid(
+          this.userContext.channel_sid
+        );
         if (channel) {
           this.joinChannel(channel);
         }
@@ -198,18 +203,26 @@ export default {
         await this.loadChannel();
         this.isLoaded = true;
       } else {
-          const subscribed = await this.client
-          .getSubscribedChannels({ limit: 100 })
+        await this.client
+          .getUserChannelDescriptors({
+            limit: 50,
+            criteria: "descriptor.date_updated",
+            order: "DESC"
+          })
           .then(page => {
-              return this.appendChannels(page, []);
+            return this.appendChannels(page, []);
           });
-        this.channels = subscribed;
         this.isLoaded = true;
       }
     },
 
     async appendChannels(paginator, current) {
-      current.push(...paginator.items);
+      paginator.items.forEach((channel) => {
+          if (!this.channels[channel.sid]) {
+              this.$set(this.channels, channel.sid, channel)
+          }
+      });
+
       if (paginator.hasNextPage) {
         return this.appendChannels(await paginator.nextPage(), current);
       } else {
@@ -255,7 +268,7 @@ export default {
         this.client.removeListener("channelLeft", this.leaveChannel);
         this.client.removeListener("channelRemoved", this.leaveChannel);
         this.client = null;
-        this.channels = [];
+        this.channels = {};
         this.activeChannel = null;
         this.userContext = { identity: null };
       }

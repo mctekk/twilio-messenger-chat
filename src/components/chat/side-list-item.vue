@@ -38,30 +38,29 @@ import Tracker from "../tracker.js";
 
 export default {
   components: {
-    ProfileImage,
+    ProfileImage
   },
   props: {
-    channel: {
+    channelDescriptor: {
       type: Object,
-      required: true,
+      required: true
     },
     channelData: {
       type: Object,
       default() {
         return {};
-      },
+      }
     },
     activeChannel: {
-      type: Object,
+      type: Object
     },
     userContext: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
-      lastMessage: {},
       typing: [],
       members: [],
       newMessages: 0,
@@ -69,60 +68,82 @@ export default {
       stopwatch: null
     };
   },
-  created() {
+  async created() {
     this.watchTime();
   },
   mounted() {
-    this.$root.$on("leads:stopwatch", (data) => {
-        if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
-            this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
-            this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
-            this.$set(this.channel.attributes, "leads_visits_count", data.leads_visits_count)
-            this.watchTime();
+    this.$root.$on("leads:stopwatch", data => {
+      if ( this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
+        this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
+
+        if (data.leads_visits_count) {
+          this.$set(this.channel.attributes, "leads_visits_count", data.leads_visits_count);
         }
+
+        this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running);
+        this.watchTime();
+      }
+    });
+
+    this.$root.$on("chat-opened", sid => {
+      if (this.channelDescriptor.sid == sid) {
+        this.updateMembers(this.channelData.channel);
+      }
     });
   },
+
   computed: {
     descriptionText() {
       return this.typing.length ? "Typing..." : "";
     },
+
     channelName() {
-      return this.channel.friendlyName || this.channel.uniqueName;
+      return this.channelDescriptor.friendlyName || this.channelDescriptor.uniqueName;
     },
+
+    lastMessage() {
+        return this.channelData && this.channelData.lastMessage;
+    },
+
+    channel() {
+        const channel = this.channelData && this.channelData.channel;
+        return channel || {
+            attributes: {}
+        };
+    },
+
     leadDays() {
-      return this.channel.attributes.leadDays;
+      return this.channelDescriptor.attributes.leadDays;
     },
+
     chronoTime() {
-      return this.channel.attributes.chrono;
+      return this.channelDescriptor.attributes.chrono;
     },
+
     lastMessageBody() {
       const limit = 29;
-      const lastMessage = this.channelData.lastMessage;
-      const message = lastMessage
-        ? `${this.getAuthorName() || ""}: ${lastMessage.body || ""} `
-        : "";
-      return message.length > limit
-        ? `${message.slice(0, limit)} ...`
-        : message;
+      const message = this.lastMessage ? `${this.authorName || ""}: ${this.lastMessage.body || ""} ` : "";
+      return message.length > limit ? `${message.slice(0, limit)} ...` : message;
     },
+
     receiver() {
       return (
-        this.channelData.members &&
-        this.channelData.members.find(
-          (member) => member.identity != this.userContext.identity
+        this.members &&
+        this.members.find(
+          member => member.identity != this.userContext.identity
         )
       );
     },
+
     receiverImage() {
-      return this.receiver && this.receiver.userAttributes
-        ? this.receiver.userAttributes.photoUrl
-        : "";
+      return this.channelDescriptor.attributes.photoUrl || "";
     },
+
     sender() {
       return (
-        this.channelData.members &&
-        this.channelData.members.find(
-          (member) => member.identity == this.userContext.identity
+        this.members &&
+        this.members.find(
+          member => member.identity == this.userContext.identity
         )
       );
     },
@@ -132,12 +153,25 @@ export default {
     },
 
     isLoading() {
-      return this.channelData.lastMessage ? false : true;
+      return this.lastMessage ? false : true;
     },
+
     isActive() {
       return this.activeChannel && this.channel.sid == this.activeChannel.sid;
     },
+
+    authorName() {
+        if (this.members && this.lastMessage) {
+        const memberUser = this.members.find( member => member.identity == this.lastMessage.author);
+        return memberUser && memberUser.userAttributes
+          ? memberUser.userAttributes.name
+          : this.lastMessage.author;
+      } else if (this.lastMessage) {
+        return this.lastMessage.author;
+      }
+    },
   },
+
   methods: {
     isRead() {
       if (this.isSender(this.lastMessage)) {
@@ -145,7 +179,7 @@ export default {
       } else if (this.sender) {
         return (
           this.receiver &&
-          this.channelData.lastMessage.index <=
+          this.lastMessage.index <=
             this.sender.lastConsumedMessageIndex
         );
       }
@@ -153,19 +187,6 @@ export default {
 
     deleteChannel() {
       this.channel.delete();
-    },
-
-    getAuthorName() {
-      if (this.channelData.members && this.channelData.lastMessage) {
-        const memberUser = this.channelData.members.find(
-          (member) => member.identity == this.channelData.lastMessage.author
-        );
-        return memberUser && memberUser.userAttributes
-          ? memberUser.userAttributes.name
-          : this.channelData.lastMessage.author;
-      } else if (this.channelData.lastMessage) {
-        return this.channelData.lastMessage.author;
-      }
     },
 
     isSender(message) {
@@ -177,13 +198,17 @@ export default {
     },
 
     visits() {
-      return Number(this.channel.attributes.leads_visits_count || this.channel.leads_visits_count  || 0);
+      return Number(
+        this.channel.attributes.leads_visits_count ||
+          this.channel.leads_visits_count ||
+          0
+      );
     },
 
     trackTime(formData) {
       if (formData && formData.chrono_start_date) {
         this.tracker = this.tracker || new Tracker();
-        this.tracker.trackTime(formData.chrono_start_date, (duration) => {
+        this.tracker.trackTime(formData.chrono_start_date, duration => {
           this.stopwatch = duration;
         });
       } else if (this.tracker) {
@@ -192,7 +217,7 @@ export default {
         this.stopwatch = null;
       }
     },
-  },
+  }
 };
 </script>
 

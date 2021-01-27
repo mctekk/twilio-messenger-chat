@@ -76,7 +76,7 @@ export default {
 
     getData() {
       const token = Cookies.get("kanvas:chat");
-      return JSON.parse(token);
+      //   return JSON.parse(token);
     },
 
     setData(data) {
