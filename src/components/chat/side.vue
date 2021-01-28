@@ -128,7 +128,7 @@ export default {
       selectedFilter: 'all',
       filters: {
           all: {
-              value: '',
+              value: 'all',
               label: "All Messages",
               field: ''
           },
@@ -187,7 +187,7 @@ export default {
 
     visibleChannels() {
         const selectedFilter = this.filters[this.selectedFilter].value;
-        return this.channels.filter(channel => channel.lastMessage && (!selectedFilter || channel.attributes.status == selectedFilter))
+        return this.channels.filter(channel => channel.lastMessage && (selectedFilter == "all" || channel.attributes.status == selectedFilter))
         .sort((a, b) => {
             const dateCreatedA = a.lastMessage
             ? a.lastMessage.dateCreated.toISOString()

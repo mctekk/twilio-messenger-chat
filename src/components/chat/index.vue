@@ -85,7 +85,7 @@ export default {
       required: true
     },
     receiver: {
-      type: String
+      type: [String, Number]
     },
     showHeader: {
       type: Boolean,
@@ -126,6 +126,7 @@ export default {
       client: null,
       channels: [],
       isLoaded: false,
+      isLoading: false,
       activeChannel: null,
       userContext: { identity: null }
     };
@@ -160,7 +161,7 @@ export default {
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
       this.loadChannelEvents(client);
       this.updateChannels();
-      console.timeEnd('tnitialLoad')
+      console.timeEnd('initialLoad')
     },
 
     async loadChannel() {
@@ -194,18 +195,29 @@ export default {
         channel.join();
       }
 
-      if (!this.showChannelList) {
-        await this.loadChannel();
-        this.isLoaded = true;
-      } else {
-          const subscribed = await this.client
-          .getSubscribedChannels({ limit: 100 })
-          .then(page => {
-              return this.appendChannels(page, []);
-          });
-        this.channels = subscribed;
-        this.isLoaded = true;
+      if(!this.activeChannel && !this.showChannelList && !this.isLoading) {
+          console.log("Hola Desde Dentro", `loaded: ${this.isLoaded}. Loading ${this.isLoading}`)
       }
+
+        if (!this.isLoading) {
+            this.isLoading = true;
+            if (!this.showChannelList) {
+                await this.loadChannel();
+                this.isLoaded = true;
+                this.isLoading = false;
+            } else {
+                console.log("there", this.showChannelList)
+                const subscribed = await this.client
+                .getSubscribedChannels({ limit: 100 })
+                .then(page => {
+                    return this.appendChannels(page, []);
+                });
+              this.channels = subscribed;
+              this.isLoaded = true;
+              this.isLoading = false;
+            }
+
+        }
     },
 
     async appendChannels(paginator, current) {
@@ -229,7 +241,6 @@ export default {
         });
         this.updateChannels();
       });
-
       client.on("channelInvited", this.updateChannels);
       client.on("channelAdded", this.updateChannels);
       client.on("channelUpdated", this.updateChannels);

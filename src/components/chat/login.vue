@@ -61,10 +61,7 @@ export default {
     };
   },
   created() {
-    const loginData = this.getData();
-    if (loginData) {
-      this.$emit("logged", loginData);
-    } else if (this.receiver) {
+    if (this.receiver) {
       this.formData.identity = this.receiver;
       this.login();
     }
@@ -101,5 +98,3 @@ export default {
   }
 };
 </script>
-
-<style></style>
