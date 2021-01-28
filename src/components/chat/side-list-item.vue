@@ -73,11 +73,18 @@ export default {
     this.watchTime();
   },
   mounted() {
+    this.$root.$on("leads:status-updated", (data) => {
+        if (this.channel.attributes && data.id == this.channel.attributes.lead_id) {
+            this.$set(this.channel.attributes, "status", data.status)
+        }
+    })
+
     this.$root.$on("leads:stopwatch", (data) => {
         if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
             this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
             this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
             this.$set(this.channel.attributes, "leads_visits_count", data.leads_visits_count)
+            this.$set(this.channel.attributes, "status", data.status)
             this.watchTime();
         }
     });
@@ -114,9 +121,7 @@ export default {
       );
     },
     receiverImage() {
-      return this.receiver && this.receiver.userAttributes
-        ? this.receiver.userAttributes.photoUrl
-        : "";
+      return this.channel.attributes.photoUrl;
     },
     sender() {
       return (
