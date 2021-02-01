@@ -62,8 +62,10 @@ export default {
   },
   created() {
     if (this.receiver) {
-      this.formData.identity = this.receiver;
-      this.login();
+        this.formData.identity = this.receiver;
+        this.login();
+    } else {
+        this.getUserToken()
     }
   },
   methods: {
@@ -81,15 +83,27 @@ export default {
       this.$emit("logged", data);
     },
 
+    getUserToken() {
+         axios
+          .get("/users/0/chats-token", this.httpOptions)
+          .then(({ data }) => {
+            this.$emit("logged", {
+                "channel_client_token": data
+            });
+          });
+    },
+
     getAccessToken(identity) {
+      const url = `${this.endpoint}/${identity}`;
+
       if (this.httpMethod) {
-        this.httpMethod(`${this.endpoint}/${identity}`).then(({ data }) => {
+        this.httpMethod(url).then(({ data }) => {
           this.setData(data);
         });
         return;
       } else {
         axios
-          .get(`${this.endpoint}/${identity}`, this.httpOptions)
+          .get(url, this.httpOptions)
           .then(({ data }) => {
             this.setData(data);
           });
