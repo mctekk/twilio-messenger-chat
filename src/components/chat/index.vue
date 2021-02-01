@@ -119,6 +119,10 @@ export default {
     user: {
       type: String,
       default: ""
+    },
+    branchId: {
+        type: [String, Number],
+        default: ""
     }
   },
   data() {
@@ -146,7 +150,6 @@ export default {
   },
   methods: {
     async createClient(data) {
-      console.time('initialLoad')
       const client = await Twilio.Client.create(data[this.tokenField], {
         logLevel: "info"
       });
@@ -161,7 +164,6 @@ export default {
       client.on("tokenAboutToExpire", this.onTokenAboutToExpire);
       this.loadChannelEvents(client);
       this.updateChannels();
-      console.timeEnd('initialLoad')
     },
 
     async loadChannel() {
@@ -195,10 +197,6 @@ export default {
         channel.join();
       }
 
-      if(!this.activeChannel && !this.showChannelList && !this.isLoading) {
-          console.log("Hola Desde Dentro", `loaded: ${this.isLoaded}. Loading ${this.isLoading}`)
-      }
-
         if (!this.isLoading) {
             this.isLoading = true;
             if (!this.showChannelList) {
@@ -206,7 +204,6 @@ export default {
                 this.isLoaded = true;
                 this.isLoading = false;
             } else {
-                console.log("there", this.showChannelList)
                 const subscribed = await this.client
                 .getSubscribedChannels({ limit: 100 })
                 .then(page => {
@@ -221,7 +218,7 @@ export default {
     },
 
     async appendChannels(paginator, current) {
-      current.push(...paginator.items);
+      current.push(...paginator.items.filter((channel) => channel.attributes.branchId == this.branchId));
       if (paginator.hasNextPage) {
         return this.appendChannels(await paginator.nextPage(), current);
       } else {
