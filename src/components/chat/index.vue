@@ -23,6 +23,7 @@
           :is-expanded="isExpanded"
           :is-loading="!isLoaded"
           :user-context="userContext"
+          :user-data="userData"
           :channels="channels"
           :active-channel="activeChannel"
           :show-header="showHeader"
@@ -119,6 +120,10 @@ export default {
     user: {
       type: String,
       default: ""
+    },
+    userData: {
+      type: Object,
+      default: {}
     },
     branchId: {
         type: [String, Number],
