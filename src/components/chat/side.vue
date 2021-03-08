@@ -100,7 +100,13 @@ export default {
       type: Array,
       required: true,
     },
+    // twillio data
     userContext: {
+      type: Object,
+      required: true,
+    },
+    // engage data
+    userData: {
       type: Object,
       required: true,
     },
@@ -222,7 +228,7 @@ export default {
         return !this.search ? this.visibleChannels : fuse.search(this.search || "").map( item => item.item)
     },
     profileImage() {
-        return this.userContext.user.attributes ? this.userContext.user.attributes.photoUrl : "";
+        return this.userData.photo ? this.userData.photo.url : "";
     }
   },
   beforeDestroy() {
@@ -328,7 +334,7 @@ export default {
           if (this.channelData[channel.sid].lastMessage.author !== sender.identity) {
             unreadMessages = this.channelData[channel.sid].lastMessage.index - sender.lastConsumedMessageIndex || 0;
             this.$set(this.channelData[channel.sid], "unreadMessages", unreadMessages);
-            return unreadMessages;
+            return Math.abs(unreadMessages);
           }
       }
 
