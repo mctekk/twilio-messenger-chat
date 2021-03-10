@@ -52,6 +52,8 @@
         spellcheck="true"
         ref="Message"
         placeholder="Type..."
+        @focus="isFocused = true"
+        @blur="isFocused = false"
         @keydown="listenTyping"
       ></textarea>
 
@@ -100,6 +102,7 @@ export default {
       description: "",
       channel: null,
       isLoading: false,
+      isFocused: false,
       messages: null,
       typing: [],
       members: [],
@@ -254,7 +257,7 @@ export default {
         this.messages = page.items || [];
         this.scrollToBottom();
         const lastIndex = this.messages.length - 1;
-        if (lastIndex >= 0) {
+        if (lastIndex >= 0 && this.isFocused) {
           this.setLastConsumedIndex(this.messages[lastIndex].index);
         }
         this.channel.on("messageAdded", this.addMessage);

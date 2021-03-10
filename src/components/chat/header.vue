@@ -9,9 +9,7 @@
         <i :class="leftIcon"></i>
       </div>
 
-      <profile-image
-        :url="profileImage"
-      ></profile-image>
+      <profile-image :url="profileImage"></profile-image>
 
       <div class="chat-header__title">
         <div>
