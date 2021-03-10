@@ -123,11 +123,13 @@ export default {
     },
     userData: {
       type: Object,
-      default: {}
+      default() {
+        return {};
+      }
     },
     branchId: {
-        type: [String, Number],
-        default: ""
+      type: [String, Number],
+      default: ""
     }
   },
   data() {
@@ -173,7 +175,9 @@ export default {
 
     async loadChannel() {
       if (!this.activeChannel && !this.showChannelList) {
-        const channel = await this.client.getChannelBySid(this.userContext.channel_sid)
+        const channel = await this.client.getChannelBySid(
+          this.userContext.channel_sid
+        );
         if (channel) {
           this.joinChannel(channel);
         }
@@ -202,28 +206,31 @@ export default {
         channel.join();
       }
 
-        if (!this.isLoading) {
-            this.isLoading = true;
-            if (!this.showChannelList) {
-                await this.loadChannel();
-                this.isLoaded = true;
-                this.isLoading = false;
-            } else {
-                const subscribed = await this.client
-                .getSubscribedChannels({ limit: 100 })
-                .then(page => {
-                    return this.appendChannels(page, []);
-                });
-              this.channels = subscribed;
-              this.isLoaded = true;
-              this.isLoading = false;
-            }
-
+      if (!this.isLoading) {
+        this.isLoading = true;
+        if (!this.showChannelList) {
+          await this.loadChannel();
+          this.isLoaded = true;
+          this.isLoading = false;
+        } else {
+          const subscribed = await this.client
+            .getSubscribedChannels({ limit: 100 })
+            .then(page => {
+              return this.appendChannels(page, []);
+            });
+          this.channels = subscribed;
+          this.isLoaded = true;
+          this.isLoading = false;
         }
+      }
     },
 
     async appendChannels(paginator, current) {
-      current.push(...paginator.items.filter((channel) => channel.attributes.branchId == this.branchId));
+      current.push(
+        ...paginator.items.filter(
+          channel => channel.attributes.branchId == this.branchId
+        )
+      );
       if (paginator.hasNextPage) {
         return this.appendChannels(await paginator.nextPage(), current);
       } else {

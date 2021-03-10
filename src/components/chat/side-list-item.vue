@@ -38,26 +38,26 @@ import Tracker from "../tracker.js";
 
 export default {
   components: {
-    ProfileImage,
+    ProfileImage
   },
   props: {
     channel: {
       type: Object,
-      required: true,
+      required: true
     },
     channelData: {
       type: Object,
       default() {
         return {};
-      },
+      }
     },
     activeChannel: {
-      type: Object,
+      type: Object
     },
     userContext: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -73,20 +73,38 @@ export default {
     this.watchTime();
   },
   mounted() {
-    this.$root.$on("leads:status-updated", (data) => {
-        if (this.channel.attributes && data.id == this.channel.attributes.lead_id) {
-            this.$set(this.channel.attributes, "status", data.status)
-        }
-    })
+    this.$root.$on("leads:status-updated", data => {
+      if (
+        this.channel.attributes &&
+        data.id == this.channel.attributes.lead_id
+      ) {
+        this.$set(this.channel.attributes, "status", data.status);
+      }
+    });
 
-    this.$root.$on("leads:stopwatch", (data) => {
-        if (this.channel.attributes && data.lead_id == this.channel.attributes.lead_id) {
-            this.$set(this.channel.attributes, "chrono_start_date", data.chrono_start_date);
-            this.$set(this.channel.attributes, "is_chrono_running", data.is_chrono_running)
-            this.$set(this.channel.attributes, "leads_visits_count", data.leads_visits_count)
-            this.$set(this.channel.attributes, "status", data.status)
-            this.watchTime();
-        }
+    this.$root.$on("leads:stopwatch", data => {
+      if (
+        this.channel.attributes &&
+        data.lead_id == this.channel.attributes.lead_id
+      ) {
+        this.$set(
+          this.channel.attributes,
+          "chrono_start_date",
+          data.chrono_start_date
+        );
+        this.$set(
+          this.channel.attributes,
+          "is_chrono_running",
+          data.is_chrono_running
+        );
+        this.$set(
+          this.channel.attributes,
+          "leads_visits_count",
+          data.leads_visits_count
+        );
+        this.$set(this.channel.attributes, "status", data.status);
+        this.watchTime();
+      }
     });
   },
   computed: {
@@ -116,7 +134,7 @@ export default {
       return (
         this.channelData.members &&
         this.channelData.members.find(
-          (member) => member.identity != this.userContext.identity
+          member => member.identity != this.userContext.identity
         )
       );
     },
@@ -127,7 +145,7 @@ export default {
       return (
         this.channelData.members &&
         this.channelData.members.find(
-          (member) => member.identity == this.userContext.identity
+          member => member.identity == this.userContext.identity
         )
       );
     },
@@ -141,7 +159,7 @@ export default {
     },
     isActive() {
       return this.activeChannel && this.channel.sid == this.activeChannel.sid;
-    },
+    }
   },
   methods: {
     isRead() {
@@ -163,7 +181,7 @@ export default {
     getAuthorName() {
       if (this.channelData.members && this.channelData.lastMessage) {
         const memberUser = this.channelData.members.find(
-          (member) => member.identity == this.channelData.lastMessage.author
+          member => member.identity == this.channelData.lastMessage.author
         );
         return memberUser && memberUser.userAttributes
           ? memberUser.userAttributes.name
@@ -182,13 +200,17 @@ export default {
     },
 
     visits() {
-      return Number(this.channel.attributes.leads_visits_count || this.channel.leads_visits_count  || 0);
+      return Number(
+        this.channel.attributes.leads_visits_count ||
+          this.channel.leads_visits_count ||
+          0
+      );
     },
 
     trackTime(formData) {
       if (formData && formData.chrono_start_date) {
         this.tracker = this.tracker || new Tracker();
-        this.tracker.trackTime(formData.chrono_start_date, (duration) => {
+        this.tracker.trackTime(formData.chrono_start_date, duration => {
           this.stopwatch = duration;
         });
       } else if (this.tracker) {
@@ -196,8 +218,8 @@ export default {
         this.tracker = null;
         this.stopwatch = null;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

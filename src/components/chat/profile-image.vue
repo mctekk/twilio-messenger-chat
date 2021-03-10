@@ -1,6 +1,6 @@
 <template>
   <div class="profile-image__container">
-    <img :src="url" alt=""  v-if="url"/>
+    <img :src="url" alt="" v-if="url" />
   </div>
 </template>
 
@@ -29,13 +29,11 @@ export default {
   position: relative;
 
   img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
-
-
 
   &.status-active::after {
     content: "";

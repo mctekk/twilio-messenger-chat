@@ -54,12 +54,18 @@ export default {
     },
 
     authorName() {
-        if (this.members && this.members.length) {
-            const memberUser = this.members.find( member => member.identity == this.message.author)
-            return memberUser &&  memberUser.userAttributes && memberUser.userAttributes.name ? memberUser.userAttributes.name : this.message.author;
-        }  else {
-            return this.message.author;
-        }
+      if (this.members && this.members.length) {
+        const memberUser = this.members.find(
+          member => member.identity == this.message.author
+        );
+        return memberUser &&
+          memberUser.userAttributes &&
+          memberUser.userAttributes.name
+          ? memberUser.userAttributes.name
+          : this.message.author;
+      } else {
+        return this.message.author;
+      }
     },
 
     renderedMessage() {
