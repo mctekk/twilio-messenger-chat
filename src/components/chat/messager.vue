@@ -13,8 +13,9 @@
     </chat-header>
 
     <div class="message-list">
-      <div
+      <transition-group
         v-if="messages"
+        name="fade-message"
         class="message-container chat-scroller"
         ref="MessageContainer"
         :class="{ 'quiet-loading': isLoading }"
@@ -29,10 +30,9 @@
           :previous-message="index > 0 ? messages[index - 1] : {}"
           :members="members"
           :message="message"
-        >
-        </messager-item>
+        />
         <!-- End of message Item -->
-      </div>
+      </transition-group>
     </div>
 
     <!-- Message Box toolbar -->
@@ -122,6 +122,12 @@ export default {
         this.$emit("opened", this.channel.sid);
       },
       immediate: true
+    },
+    isFocused(value) {
+      const len = this.messages.length;
+      if (value && len > 0) {
+        this.setLastConsumedIndex(this.messages[0].index);
+      }
     }
   },
   computed: {
@@ -149,11 +155,6 @@ export default {
   },
   created() {
     this.getDescription();
-  },
-  mounted() {
-    setTimeout(() => {
-      this.scrollToBottom();
-    });
   },
   beforeDestroy() {
     this.removeActiveChannelListeners();
@@ -232,15 +233,6 @@ export default {
       }
     },
 
-    scrollToBottom(behavior) {
-      this.$nextTick(() => {
-        const el = this.$refs.MessageContainer;
-        if (el) {
-          el.scrollTo({ top: el.scrollHeight, behavior });
-        }
-      });
-    },
-
     removeActiveChannelListeners() {
       if (this.channel) {
         this.channel.removeListener("messageAdded", this.addMessage);
@@ -249,16 +241,10 @@ export default {
     },
 
     getMessages() {
-      this.getMessagesFunc();
-    },
-
-    getMessagesFunc() {
       this.channel.getMessages(30).then(page => {
-        this.messages = page.items || [];
-        this.scrollToBottom();
-        const lastIndex = this.messages.length - 1;
-        if (lastIndex >= 0 && this.isFocused) {
-          this.setLastConsumedIndex(this.messages[lastIndex].index);
+        this.messages = page.items.reverse() || [];
+        if (this.isFocused && this.messages.length) {
+          this.setLastConsumedIndex(this.messages[0].index);
         }
         this.channel.on("messageAdded", this.addMessage);
         this.channel.on("memberUpdated", this.updateMembers);
@@ -281,9 +267,8 @@ export default {
     },
 
     addMessage(message) {
-      this.messages.push(message);
+      this.messages.unshift(message);
       this.setLastConsumedIndex(message.index);
-      this.scrollToBottom("smooth");
     },
 
     setLastConsumedIndex(index) {
@@ -349,6 +334,8 @@ export default {
     display: block;
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
     overflow-x: hidden;
     overflow-y: scroll;
   }
@@ -374,6 +361,7 @@ export default {
     white-space: pre-wrap;
     width: 100%;
     border: 0;
+    resize: none;
 
     &:focus {
       outline: none;
@@ -402,5 +390,18 @@ export default {
   cursor: pointer;
   width: 220px !important;
   border: 2px solid #ccc;
+}
+
+.fade-message-enter {
+  opacity: 0;
+}
+
+.fade-message-enter-active {
+  transition: opacity 0.5s;
+}
+
+.fade-message-leave-active {
+  transition: opacity 0.2s;
+  opacity: 0;
 }
 </style>
