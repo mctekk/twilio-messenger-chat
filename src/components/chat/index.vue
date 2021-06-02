@@ -145,6 +145,9 @@ export default {
   watch: {
     receiver() {
       this.unlistenEvents();
+    },
+    branchId() {
+        this.unlistenEvents()
     }
   },
   computed: {
@@ -296,6 +299,10 @@ export default {
 
     sendMessage(message, attributes) {
       this.$refs.messenger.sendMessage(message, attributes);
+    },
+
+    focus() {
+      this.$refs.messenger.focus();
     }
   }
 };
