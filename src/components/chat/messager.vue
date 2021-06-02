@@ -118,7 +118,7 @@ export default {
         this.isLoading = true;
         this.channel = this.activeChannel;
         this.updateMembers();
-        this.getMessages();
+        this.getMessages()
         this.$emit("opened", this.channel.sid);
       },
       immediate: true
@@ -199,6 +199,7 @@ export default {
         this.description = attributes.description;
       });
     },
+
     leaveChannel() {
       this.$emit("left", this.channel);
     },
@@ -249,6 +250,9 @@ export default {
         this.channel.on("messageAdded", this.addMessage);
         this.channel.on("memberUpdated", this.updateMembers);
         this.isLoading = false;
+        this.$nextTick(() => {
+            this.focus()
+        })
       });
 
       this.channel.on("typingStarted", member => {
@@ -275,6 +279,10 @@ export default {
       setTimeout(async () => {
         this.channel.updateLastConsumedMessageIndex(index);
       });
+    },
+
+    focus() {
+        this.$refs.Message.focus()
     }
   }
 };
@@ -380,7 +388,7 @@ export default {
 }
 
 .btn-action {
-  background: dodgerblue;
+  background: #1975BC;
   color: white;
   height: 34px;
   text-align: center;
@@ -389,7 +397,19 @@ export default {
   font-size: 0.75rem;
   cursor: pointer;
   width: 220px !important;
-  border: 2px solid #ccc;
+  border: 2px solid #1975BC;
+  transition: background ease .3s ;
+
+  &:hover {
+    background: darken($color: #1975BC, $amount: 10);
+  }
+
+  &.bg-white {
+    border-color: #eee;
+     &:hover {
+        background-color: silver;
+    }
+  }
 }
 
 .fade-message-enter {
